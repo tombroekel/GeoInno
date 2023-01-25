@@ -141,12 +141,21 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
 }
 
 
-create_sample_data <- function()
+#' Create sample data
+#'
+#' @param num.pat Number of patents
+#'
+#' @return The function returns a data.frame suited to be used with other functions in the package
+#' @export
+#'
+#' @examples
+#' create_sample_data(200)
+create_sample_data <- function(num.pat=200)
 {
   set.seed(123)
-  appln_id <- sample(200, size=1000, replace = T)
-  cpc.1 <- sample(LETTERS[1:10], size=1000, replace = T)
-  cpc.2 <- sample(LETTERS[1:25], size=1000, replace = T)
+  appln_id <- sample(num.pat, size=num.pat*5, replace = T)
+  cpc.1 <- sample(LETTERS[1:10], size=num.pat*5, replace = T)
+  cpc.2 <- sample(LETTERS[1:25], size=num.pat*5, replace = T)
   cpc <- paste0(cpc.1,cpc.2)
 
   pat.df <- data.frame(appln_id=appln_id, cpc=cpc) %>% arrange(appln_id)
