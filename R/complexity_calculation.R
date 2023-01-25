@@ -1,4 +1,17 @@
-#' @importFrom Rdpack reprompt
+#' Artificial data set to illustrate patdatatools
+#'
+#' A data set illustrating the form and style how patent data should be structured to be used by functions in this package
+#'
+#' @format ## `pat.df`
+#' A data frame with 1,000 rows and 4 columns:
+#' \describe{
+#'   \item{appln_id}{application number of patent}
+#'   \item{cpc}{IPC/CPC code assigned to a patent}
+#'   \item{tech}{Technology code, usually 2 or 4-digit CPC code}
+#'   \item{year}{Year of observation}
+#' }
+#' @source None
+"pat.df"
 
 giant.component <- function(graph, ...)
 {
@@ -49,10 +62,14 @@ selector<-function(x)
 #' Structural diversity
 #'
 #' @description The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{patdatatools} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
-#' @param data a data frame in the form described above
+#' @param patdat a data frame in the form of pat.df
 #' @param mw parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2)
 #' @param node.sample the number of nodes sampled in the Network Diversity Score calculation , set to 125, see \insertCite{Emmert-Streib2012;textual}{patdatatools}
 #' @param reps the number of repetitions used in the bootstrap, default set to 200
+#' @importFrom Rdpack reprompt
+#' @import tidyverse
+#' @import widyr
+#' @import netdist
 #'
 #' @return The function returns a data.frame with the name complexity including the follwoing information
 #' \itemize{
@@ -70,11 +87,11 @@ selector<-function(x)
 #' @export
 #'
 #' @examples
-#' structural_diversity(df)
-structural_diversity <- function(data, mw=3, node.sample=125, reps=200)
+#' structural_diversity(pat.df)
+structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
 {
-  years <- data %>% pull(year) %>% unique() %>% sort()
-  techs <- data %>% pull(tech) %>% unique() %>% sort()
+  years <- patdat$year %>% unique() %>% sort()
+  techs <- patdat$tech %>% unique() %>% sort()
 
   results<-data.frame("tech"="","year"=0, "tech_nodes"=0, "tech_edges"=0, "structural"=0, stringsAsFactors = F)
   results<-results %>% slice(-1)
@@ -86,7 +103,7 @@ structural_diversity <- function(data, mw=3, node.sample=125, reps=200)
     #Extract moving window data
     upper <- years[t]
     lower <- ifelse((years[t]-mw)< min(years),min(years),years[t-(mw-1)])
-    pat.t <- data %>% filter(year <= upper & year >= lower)
+    pat.t <- patdat %>% filter(year <= upper & year >= lower)
 
     #Number of patents and cpcs per tech
     pats <- pat.t %>% group_by(tech) %>% summarise(patents=n_distinct(appln_id),
@@ -121,4 +138,20 @@ structural_diversity <- function(data, mw=3, node.sample=125, reps=200)
     results<-bind_rows(results,results.t)
   }
   return(results)
+}
+
+
+create_sample_data <- function()
+{
+  set.seed(123)
+  appln_id <- sample(200, size=1000, replace = T)
+  cpc.1 <- sample(LETTERS[1:10], size=1000, replace = T)
+  cpc.2 <- sample(LETTERS[1:25], size=1000, replace = T)
+  cpc <- paste0(cpc.1,cpc.2)
+
+  pat.df <- data.frame(appln_id=appln_id, cpc=cpc) %>% arrange(appln_id)
+  pat.df <- pat.df %>% mutate(tech = substr(cpc,1,1))
+  year <- sample(c(1999:2005), size=length(unique(appln_id)), replace = T)
+  pat.df <- pat.df %>% mutate(year = year[appln_id])
+  return(pat.df)
 }

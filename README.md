@@ -44,19 +44,7 @@ This is a basic example which shows you how to use the main function
 ``` r
 library(patdatatools)
 
-# Create a sample data.frame mimicking common patent data, i.e., a data.frame with four columns: appln_id, technology code, cpc code, year
-set.seed(123)
-appln_id <- sample(200, size=1000, replace = T)
-cpc.1 <- sample(LETTERS[1:10], size=1000, replace = T)
-cpc.2 <- sample(LETTERS[1:25], size=1000, replace = T)
-cpc <- paste0(cpc.1,cpc.2)
+#Calculate structural diversity using artificial data set pat.df, which is created by create_sample_data()
 
-df <- data.frame(appln_id=appln_id, cpc=cpc) %>% arrange(appln_id)
-df <- df %>% mutate(tech = substr(cpc,1,1))
-year <- sample(c(1999:2005), size=length(unique(appln_id)), replace = T)
-df <- df %>% mutate(year = year[appln_id])
-
-#### Calculate structural diversity #### 
-
-complexity <- structural_diversity(df)
+complexity <- structural_diversity(pat.df)
 ```

@@ -2,22 +2,23 @@ Package: patdatatools
 Type: Package
 Title: Calculation of types of complexity and aggregated indices at the level of spatial units
 Version: 0.1.0
-Author@R: c(person(given = "Tom",
-           family = "Broekel",
-           role = c("aut", "cre"),
-           email = "tobroworks@icloud.com",
-           comment = c(ORCID = "0000-0003-4516-4626"))
+Author: Tom Broekel
 Maintainer: The package maintainer <tobroworks@icloud.com>
 Description: The package features functions to work with patent data in the context of the Geography of Innovation literature. At this stage, it calculates indices approximating technological complexity using patent data.
     It also contains functions of aggregating these indices at the level of spatial units.
 License: use_mit_license()
 Encoding: UTF-8
 LazyData: true
-Imports:
-  igraph,
-  tidyverse,
-  widyr,
-  netdist,
-  Rdpack
+Depends:
+    igraph,
+    tidyverse,
+    widyr,
+    netdist,
+    Rdpack,
+    magrittr,
+    R (>= 2.10)
 RdMacros: Rdpack
 RoxygenNote: 7.2.3
+Suggests: 
+    testthat (>= 3.0.0)
+Config/testthat/edition: 3

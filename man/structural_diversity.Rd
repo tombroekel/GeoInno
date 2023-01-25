@@ -4,10 +4,10 @@
 \alias{structural_diversity}
 \title{Structural diversity}
 \usage{
-structural_diversity(data, mw = 3, node.sample = 125, reps = 200)
+structural_diversity(patdat, mw = 3, node.sample = 125, reps = 200)
 }
 \arguments{
-\item{data}{a data frame in the form described above}
+\item{patdat}{a data frame in the form of pat.df}
 
 \item{mw}{parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2)}
 
@@ -31,7 +31,7 @@ The function returns a data.frame with the name complexity including the follwoi
 The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{patdatatools} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
 }
 \examples{
-structural_diversity(df)
+structural_diversity(pat.df)
 }
 \references{
 \insertAllCited{}
