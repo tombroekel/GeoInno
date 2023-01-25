@@ -1,16 +1,20 @@
 
-# regcomplex
+# patdatatools
 
-The main function in this package is *structural_diversity()* calculates
-the measure of **structural diversity** as defined by Broekel (2019)
-from patent data. It also features a number of support functions and the
-function *complexity_frontier()* used to transform an index of
+The package’s aim is to provide a set of tools for working with patent
+data that are frequently employed in the context of research related to
+the Geography of Innovation literature. It will be continously expanded.
+At this stage, its main function is *structural_diversity()*, which
+calculates the measure of **structural diversity** as defined by Broekel
+(2019) from patent data. It also features a number of support functions
+and the function *complexity_frontier()* used to transform an index of
 technological complexity to the so-called **complexity frontier**, which
 Mewes & Broekel (2022) use to aggregate the technology-specific index to
 the level of a spatial unit (regions or countries).
 
-The package requires the packages igraph, tidyverse, widyr, netdist to
-be installed.
+The package requires the packages **igraph**, **tidyverse**, **widyr**,
+**netdist** to be installed. The package **netdist** can be found here:
+<https://github.com/alan-turing-institute/network-comparison/>
 
 ## References
 
@@ -24,12 +28,12 @@ growth of regions. Res. Policy 51, 104156.
 
 ## Installation
 
-You can install the development version of regcomplex like this:
+You can install the development version of patdatatools like this:
 
 ``` r
 install.packages("devtools")
 library(devtools) 
-devtools::install_github("tombroekel/regcomplex", force = T)
+devtools::install_github("tombroekel/patdatatools", force = T)
 ```
 
 ## Example
@@ -38,7 +42,7 @@ This is a basic example which shows you how to use the main function
 *structural_diversity()*
 
 ``` r
-library(regcomplex)
+library(patdatatools)
 
 # Create a sample data.frame mimicking common patent data, i.e., a data.frame with four columns: appln_id, technology code, cpc code, year
 set.seed(123)

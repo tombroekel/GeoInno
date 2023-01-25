@@ -1,4 +1,4 @@
-Package: regcomplex
+Package: patdatatools
 Type: Package
 Title: Calculation of types of complexity and aggregated indices at the level of spatial units
 Version: 0.1.0
@@ -16,4 +16,4 @@ Imports:
   netdist,
   Rdpack
 RdMacros: Rdpack
-RoxygenNote: 7.2.0
+RoxygenNote: 7.2.3

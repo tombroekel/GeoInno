@@ -11,7 +11,7 @@ structural_diversity(data, mw = 3, node.sample = 125, reps = 200)
 
 \item{mw}{parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2)}
 
-\item{node.sample}{the number of nodes sampled in the Network Diversity Score calculation , set to 125, see \insertCite{Emmert-Streib2012;textual}{regcomplex}}
+\item{node.sample}{the number of nodes sampled in the Network Diversity Score calculation , set to 125, see \insertCite{Emmert-Streib2012;textual}{patdatatools}}
 
 \item{reps}{the number of repetitions used in the bootstrap, default set to 200}
 }
@@ -28,7 +28,7 @@ The function returns a data.frame with the name complexity including the follwoi
 }
 }
 \description{
-The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{regcomplex} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
+The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{patdatatools} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
 }
 \examples{
 structural_diversity(df)
