@@ -13,24 +13,51 @@
 #' @source None
 "pat.df"
 
+#' Giant component
+#'
+#' @description Helper function for the calculation of the network diversity score of \insertCite{Emmert-Streib2012;textual}{GeoInno} and the structural diversity complexity measure of \insertCite{Broekel2019;textual}{GeoInno}.
+#'
+#' @param graph An igraph object from which the giant component needs to be extracted.
+#' @param ...
+#'
+#' @return The function returns an igraph object representing the giant component of a network
+#' @export
+#'
+#' @examples
+#' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
+#' giant.component(my.graph)
 giant.component <- function(graph, ...)
 {
   cl <- clusters(graph, ...)
   induced_subgraph(graph, which(cl$membership == which.max(cl$csize)))
 }
 
-NDS.intern<-function(s, g, node.sample, reps)
+
+#' individual network diversity score (iNDS)
+#'
+#'@description NDS.intern() calculates the individual network diversity score as defined by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It is in the calculation of the structural diversity complexity measure of \insertCite{Broekel2019;textual}{GeoInno}.
+#'
+#' @param s The (random) sample of nodes (position indizes in igraph object) for which the partial networks are to be extracted by means of a random walk.
+#' @param g The igraph object. Usually, the binarized version of the combinatorial network of CPC classes co-occurring on patents.
+#' @param node.sample The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}
+#' @param reps The number of repetitions used in the bootstrap, default set to 200.
+#'
+#' @return Returns the value of the iNDS measure.
+#' @export
+#'
+#' @examples
+#' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
+#' NDS.intern(g = my.graph, s=c(1:10), node.sample=10, reps=10)
+NDS.intern<-function(g, s, node.sample, reps)
 {
-  #select sample network of size 200 through random walk
   set.seed(2)
-  sample_vertex <- random_walk(g,start=s,steps=reps,mode="all")
+  sample_vertex <- random_walk(g, start=s, steps=reps, mode="all")
   sample_net <- induced.subgraph(graph = g, vids = sample_vertex)
-  #Network diversity score
   set.seed(2)
   modules_g <- cluster_walktrap(sample_net, steps = 4, merges = TRUE, modularity = TRUE, membership = TRUE)
   m <- data.frame(sizes(modules_g))
   lap <- eigen(laplacian_matrix(sample_net,norm=F))$values
-  graphletis <- count_graphlets_for_graph(sample_net,4)
+  graphletis <- count_graphlets_for_graph(sample_net, 4)
   graph.3 <- sum(graphletis[paste("G",1:2,sep="")])
   graph.4 <- sum(graphletis[paste("G",3:8,sep="")])
   a.module <- length(modules_g)/vcount(sample_net)
@@ -45,7 +72,7 @@ nds<-function(g, node.sample, reps)
 {
   vsample<-ifelse(vcount(g)<node.sample, vcount(g), node.sample)
   set.seed(2)
-  start_vertex<-sample(vcount(g),vsample,replace=F)
+  start_vertex<-sample(vcount(g), vsample, replace=F)
   comp<-sort(unlist(lapply(start_vertex,NDS.intern,g=g,node.sample=node.sample, reps=reps)))
   structural<-mean(comp,na.rm=T)
   structural <- ifelse(structural == 0, 1, structural)
@@ -62,10 +89,10 @@ selector<-function(x)
 #' Structural diversity
 #'
 #' @description The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
-#' @param patdat a data frame in the form of pat.df
-#' @param mw parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2)
-#' @param node.sample the number of nodes sampled in the Network Diversity Score calculation , set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}
-#' @param reps the number of repetitions used in the bootstrap, default set to 200
+#' @param patdat A data frame in the form of pat.df .
+#' @param mw Parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).
+#' @param node.sample The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.
+#' @param reps The number of repetitions used in the bootstrap, default set to 200.
 #' @importFrom Rdpack reprompt
 #' @import tidyverse
 #' @import widyr

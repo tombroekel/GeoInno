@@ -7,13 +7,13 @@
 structural_diversity(patdat, mw = 3, node.sample = 125, reps = 200)
 }
 \arguments{
-\item{patdat}{a data frame in the form of pat.df}
+\item{patdat}{A data frame in the form of pat.df .}
 
-\item{mw}{parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2)}
+\item{mw}{Parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).}
 
-\item{node.sample}{the number of nodes sampled in the Network Diversity Score calculation , set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}}
+\item{node.sample}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.}
 
-\item{reps}{the number of repetitions used in the bootstrap, default set to 200}
+\item{reps}{The number of repetitions used in the bootstrap, default set to 200.}
 }
 \value{
 The function returns a data.frame with the name complexity including the follwoing information
