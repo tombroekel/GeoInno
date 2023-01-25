@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/reference/test_package.html#special-files
 
 library(testthat)
-library(patdatatools)
+library(GeoInno)
 
-test_check("patdatatools")
+test_check("GeoInno")

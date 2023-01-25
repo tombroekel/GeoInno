@@ -1,5 +1,5 @@
 
-# patdatatools
+# GeoInno
 
 The package’s aim is to provide a set of tools for working with patent
 data that are frequently employed in the context of research related to
@@ -28,12 +28,12 @@ growth of regions. Res. Policy 51, 104156.
 
 ## Installation
 
-You can install the development version of patdatatools like this:
+You can install the development version of GeoInno like this:
 
 ``` r
 install.packages("devtools")
 library(devtools) 
-devtools::install_github("tombroekel/patdatatools", force = T)
+devtools::install_github("tombroekel/GeoInno", force = T)
 ```
 
 ## Example
@@ -42,7 +42,7 @@ This is a basic example which shows you how to use the main function
 *structural_diversity()*
 
 ``` r
-library(patdatatools)
+library(GeoInno)
 
 #Calculate structural diversity using artificial data set pat.df, which is created by create_sample_data()
 

@@ -1,4 +1,4 @@
-Package: patdatatools
+Package: GeoInno
 Type: Package
 Title: Calculation of types of complexity and aggregated indices at the level of spatial units
 Version: 0.1.0

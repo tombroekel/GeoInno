@@ -3,7 +3,7 @@
 \docType{data}
 \name{pat.df}
 \alias{pat.df}
-\title{Artificial data set to illustrate patdatatools}
+\title{Artificial data set to illustrate GeoInno}
 \format{
 ## `pat.df`
 A data frame with 1,000 rows and 4 columns:
