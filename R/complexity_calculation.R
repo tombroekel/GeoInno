@@ -81,11 +81,19 @@ nds<-function(g, node.sample, reps)
   return(structural)
 }
 
-#selector<-function(x)
-#{
-#  which(substr(V(pat_net)$name,1,4)==x)
-#}
 
+#' Complexity Estimations
+#'
+#' @param patdat
+#' @param pats_window
+#' @param mw
+#' @param node.sample
+#' @param reps
+#'
+#' @return
+#' @export
+#'
+#' @examples
 complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, reps=200)
   {
   pats_window<-pats_window %>% unique()

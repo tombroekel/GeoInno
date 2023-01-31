@@ -2,6 +2,7 @@
 
 export("%>%")
 export(NDS.intern)
+export(complexity_estimation)
 export(create_sample_data)
 export(giant.component)
 export(structural_diversity)
