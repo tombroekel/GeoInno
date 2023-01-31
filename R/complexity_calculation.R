@@ -95,7 +95,7 @@ complexity_estimation <- function(pats_window, ...)
       widyr::pairwise_count(item=cpc,feature = appln_id, diag=F)
 
     pat_net <- pat_tech %>% select(item1,item2) %>% as.matrix() %>% igraph:::graph_from_edgelist(directed=FALSE) %>% igraph:::simplify()
-    if(ecount(pat_net)>0)
+    if(igraph:::ecount(pat_net)>0)
     {
       g_inv <- giant.component(pat_net)
       node_count <- igraph:::vcount(g_inv)
@@ -154,7 +154,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
 
   results_window <- patdat %>% group_by(window, tech) %>% summarise(patents_window=n_distinct(appln_id),
                                                            cpcs_window=n_distinct(cpc),
-                                                           complexity_estimation(appln_id))  %>%
+                                                           GeoInno:::complexity_estimation(appln_id))  %>%
                                                             ungroup()
   results_window <- left_join(results_year,results_window,by=c("tech","year"="window"))
   return(results_window)
