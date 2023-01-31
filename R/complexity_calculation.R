@@ -86,8 +86,8 @@ nds<-function(g, node.sample, reps)
 #  which(substr(V(pat_net)$name,1,4)==x)
 #}
 
-complexity_estimation <- function(pats_window, ...)
-{
+complexity_estimation <- function(patdat, pats_window, ...)
+  {
   pats_window<-pats_window %>% unique()
   if(length(pats_window)>0)
     {
@@ -154,7 +154,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
 
   results_window <- patdat %>% group_by(window, tech) %>% summarise(patents_window=n_distinct(appln_id),
                                                            cpcs_window=n_distinct(cpc),
-                                                           GeoInno:::complexity_estimation(appln_id))  %>%
+                                                           GeoInno:::complexity_estimation(patdat,appln_id))  %>%
                                                             ungroup()
   results_window <- left_join(results_year,results_window,by=c("tech","year"="window"))
   return(results_window)
