@@ -86,7 +86,7 @@ nds<-function(g, node.sample, reps)
 #  which(substr(V(pat_net)$name,1,4)==x)
 #}
 
-complexity_estimation <- function(patdat, pats_window, mw, node.sample, reps)
+complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, reps=200)
   {
   pats_window<-pats_window %>% unique()
   if(length(pats_window)>0)
