@@ -81,17 +81,16 @@ nds<-function(g, node.sample, reps)
   return(structural)
 }
 
-selector<-function(x)
-{
-  which(substr(V(pat_net)$name,1,4)==x)
-}
+#selector<-function(x)
+#{
+#  which(substr(V(pat_net)$name,1,4)==x)
+#}
 
 complexity_estimation <- function(pats_window, ...)
 {
   pats_window<-pats_window %>% unique()
   if(length(pats_window)>0)
-  {
-    #all patents with at least one CPC of tech and network without isolates
+    {
     pat_tech <- patdat %>% filter(appln_id %in% pats_window) %>%
       widyr::pairwise_count(item=cpc,feature = appln_id, diag=F)
 
@@ -105,11 +104,13 @@ complexity_estimation <- function(pats_window, ...)
         {
         return(tibble(structural=nds(g_inv, node.sample=node.sample, reps=reps),edges=edge_count,nodes=node_count))
         }else{
-              return(tibble(structural=NA,edges=edge_count,nodes=node_count))
+              return(tibble(structural=NA, edges=edge_count, nodes=node_count))
               }
     }else{
       return(tibble(structural=NA,edges=NA,nodes=NA))
     }
+  }else{
+    return(tibble(structural=NA,edges=NA,nodes=NA))
   }
 }
 
@@ -156,6 +157,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
                                                            complexity_estimation(appln_id))  %>%
                                                             ungroup()
   results_window <- left_join(results_year,results_window,by=c("tech","year"="window"))
+  return(results_window)
   }
 
 
