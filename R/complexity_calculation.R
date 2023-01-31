@@ -86,6 +86,33 @@ selector<-function(x)
   which(substr(V(pat_net)$name,1,4)==x)
 }
 
+complexity_estimation <- function(pats_window, ...)
+{
+  pats_window<-pats_window %>% unique()
+  if(length(pats_window)>0)
+  {
+    #all patents with at least one CPC of tech and network without isolates
+    pat_tech <- patdat %>% filter(appln_id %in% pats_window) %>%
+      widyr::pairwise_count(item=cpc,feature = appln_id, diag=F)
+
+    pat_net <- pat_tech %>% select(item1,item2) %>% as.matrix() %>% igraph:::graph_from_edgelist(directed=FALSE) %>% igraph:::simplify()
+    if(ecount(pat_net)>0)
+    {
+      g_inv <- giant.component(pat_net)
+      node_count <- igraph:::vcount(g_inv)
+      edge_count <- igraph:::ecount(g_inv)
+      if(edge_count>=1)
+        {
+        return(tibble(structural=nds(g_inv, node.sample=node.sample, reps=reps),edges=edge_count,nodes=node_count))
+        }else{
+              return(tibble(structural=NA,edges=edge_count,nodes=node_count))
+              }
+    }else{
+      return(tibble(structural=NA,edges=NA,nodes=NA))
+    }
+  }
+}
+
 #' Structural diversity
 #'
 #' @description The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
@@ -116,56 +143,20 @@ selector<-function(x)
 #' @examples
 #' structural_diversity(pat.df)
 structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
-{
-  years <- patdat$year %>% unique() %>% sort()
-  techs <- patdat$tech %>% unique() %>% sort()
-
-  results<-data.frame("tech"="","year"=0, "tech_nodes"=0, "tech_edges"=0, "structural"=0, stringsAsFactors = F)
-  results<-results %>% slice(-1)
-
-  for(t in 1:length(years))
   {
-    results.t<-data.frame("tech"=techs,"year"=years[t],"tech_nodes"=rep(0,length(techs)),"tech_edges"=rep(0,length(techs)),"structural"=rep(0,length(techs)),stringsAsFactors = F)
+  #for year t, every patent with year in interval t:(t-mw+1) is duplicated into the year t, so that group_by for t includes also all older patents
+  patdat <- patdat %>% rowwise() %>% mutate(window=paste(rep(year,mw)+c(0:(mw-1)),collapse="_"))
+  patdat <- patdat %>% separate_rows(window, sep="_")
+  patdat <- patdat %>% mutate(window=as.numeric(window))
+  results_year <- patdat %>% group_by(year, tech) %>% summarise(patents_year=n_distinct(appln_id),
+                                                             cpcs_year=n_distinct(cpc))  %>%    ungroup()
 
-    #Extract moving window data
-    upper <- years[t]
-    lower <- ifelse((years[t]-mw)< min(years),min(years),years[t-(mw-1)])
-    pat.t <- patdat %>% filter(year <= upper & year >= lower)
-
-    #Number of patents and cpcs per tech
-    pats <- pat.t %>% group_by(tech) %>% summarise(patents=n_distinct(appln_id),
-                                                   cpcs=n_distinct(cpc)) %>%
-      ungroup()
-
-    results.t <- left_join(results.t, pats, by=c("tech"="tech"))
-
-    for (i in 1:nrow(results.t))
-    {
-      tech_appln<-pat.t %>% filter(tech==techs[i]) %>%  pull(appln_id) %>% unique()
-      if(length(tech_appln)>0)
-      {
-        #all patents with at least one CPC of tech and network without isolates
-        pat_tech <- pat.t %>% filter(appln_id %in% tech_appln) %>%
-          widyr::pairwise_count(item=cpc,feature = appln_id, diag=F)
-
-        pat_net <- pat_tech %>% select(item1,item2) %>% as.matrix() %>% graph_from_edgelist(directed=FALSE) %>% igraph::simplify()
-        if(ecount(pat_net)>0)
-        {
-          g_inv <- giant.component(pat_net)
-          results.t$tech_nodes[i] <- vcount(g_inv)
-          results.t$tech_edges[i] <- ecount(g_inv)
-          if(ecount(g_inv)>=1)
-          {
-            results.t[i,"structural"]<-nds(g_inv, node.sample=node.sample, reps=reps)
-          }
-        }
-      }
-      print(paste(years[t]," ","Structural diversity for ","i=",i,sep=""))
-    }
-    results<-bind_rows(results,results.t)
+  results_window <- patdat %>% group_by(window, tech) %>% summarise(patents_window=n_distinct(appln_id),
+                                                           cpcs_window=n_distinct(cpc),
+                                                           complexity_estimation(appln_id))  %>%
+                                                            ungroup()
+  results_window <- left_join(results_year,results_window,by=c("tech","year"="window"))
   }
-  return(results)
-}
 
 
 #' Create sample data
