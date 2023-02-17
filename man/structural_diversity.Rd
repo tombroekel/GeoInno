@@ -4,19 +4,27 @@
 \alias{structural_diversity}
 \title{Structural diversity}
 \usage{
-structural_diversity(patdat, mw = 3, node.sample = 125, reps = 200)
+structural_diversity(
+  patdat,
+  mw = 3,
+  node.sample = 125,
+  reps = 200,
+  core.workers = 1
+)
 }
 \arguments{
-\item{patdat}{A data frame in the form of pat.df .}
+\item{patdat}{A data frame in the form of pat.df.}
 
-\item{mw}{Parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).}
+\item{mw}{Parameter setting the length of moving window. Default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).}
 
 \item{node.sample}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.}
 
-\item{reps}{The number of repetitions used in the bootstrap, default set to 200.}
+\item{reps}{The number of repetitions used in the bootstrap. Default set to 200.}
+
+\item{core.workers}{The number of cores used in parallelization. Default set to 1.}
 }
 \value{
-The function returns a data.frame with the name complexity including the follwoing information
+The function returns a data.frame with the name complexity including the following information:
 \itemize{
   \item{\emph{tech}}{focal technology}
   \item{\emph{year}}{year for which the calculation is done}
@@ -28,7 +36,7 @@ The function returns a data.frame with the name complexity including the follwoi
 }
 }
 \description{
-The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
+The function calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. The function is set-up for parallel computing using the future.apply() approach. A progress bar from progressr is implemented. An example is provided below showcasing the way the data is to be structured.
 }
 \examples{
 structural_diversity(pat.df)

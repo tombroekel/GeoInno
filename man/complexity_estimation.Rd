@@ -2,19 +2,24 @@
 % Please edit documentation in R/complexity_calculation.R
 \name{complexity_estimation}
 \alias{complexity_estimation}
-\title{Complexity Estimations}
+\title{Complexity calculation}
 \usage{
-complexity_estimation(
-  patdat,
-  pats_window,
-  mw = 3,
-  node.sample = 125,
-  reps = 200
-)
+complexity_estimation(x, ...)
 }
 \arguments{
-\item{reps}{}
+\item{patdat}{See function structural_diversity().}
+
+\item{pats_window}{See function structural_diversity().}
+
+\item{mw}{See function structural_diversity().}
+
+\item{node.sample}{See function structural_diversity().}
+
+\item{reps}{See function structural_diversity().}
+}
+\value{
+A tibble including the value of complexity and the edge as well as nodes counts of the giant component of the combinatorial network.
 }
 \description{
-Complexity Estimations
+Background function for the estimation of the structural diversity measure by \insertCite{Broekel2019;textual}{GeoInno}.
 }

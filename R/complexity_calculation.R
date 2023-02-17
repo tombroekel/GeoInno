@@ -48,10 +48,10 @@ giant.component <- function(graph, ...)
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' NDS.intern(g = my.graph, s=c(1:10), node.sample=10, reps=10)
-NDS.intern<-function(g, s, node.sample, reps)
+NDS.intern<-function(x,g,...)
 {
   set.seed(2)
-  sample_vertex <- random_walk(g, start=s, steps=reps, mode="all")
+  sample_vertex <- random_walk(g, start=x, steps=reps, mode="all")
   sample_net <- induced.subgraph(graph = g, vids = sample_vertex)
   set.seed(2)
   modules_g <- cluster_walktrap(sample_net, steps = 4, merges = TRUE, modularity = TRUE, membership = TRUE)
@@ -68,12 +68,19 @@ NDS.intern<-function(g, s, node.sample, reps)
   ifelse(is.infinite(nds.s)==T | is.na(nds.s) ==T,0,nds.s)
 }
 
-nds<-function(g, node.sample, reps)
+#' Function nds
+#' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib201;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+#' @param g
+#'
+#' @return A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
+#' @export
+#'
+nds<-function(g, ...)
 {
   vsample<-ifelse(vcount(g)<node.sample, vcount(g), node.sample)
   set.seed(2)
   start_vertex<-sample(vcount(g), vsample, replace=F)
-  comp<-sort(unlist(lapply(start_vertex,NDS.intern,g=g,node.sample=node.sample, reps=reps)))
+  comp<-sort(unlist(lapply(start_vertex,NDS.intern,g)))
   structural<-mean(comp,na.rm=T)
   structural <- ifelse(structural == 0, 1, structural)
   structural <- ifelse(structural > 1, 1, structural)
@@ -81,25 +88,22 @@ nds<-function(g, node.sample, reps)
   return(structural)
 }
 
-
-#' Complexity Estimations
+#' Complexity calculation
+#' @description Background function for the estimation of the structural diversity measure by \insertCite{Broekel2019;textual}{GeoInno}.
+#' @param patdat See function structural_diversity().
+#' @param pats_window See function structural_diversity().
+#' @param mw See function structural_diversity().
+#' @param node.sample See function structural_diversity().
+#' @param reps See function structural_diversity().
 #'
-#' @param patdat
-#' @param pats_window
-#' @param mw
-#' @param node.sample
-#' @param reps
-#'
-#' @return
+#' @return A tibble including the value of complexity and the edge as well as nodes counts of the giant component of the combinatorial network.
 #' @export
-#'
-#' @examples
-complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, reps=200)
+complexity_estimation <- function(x, ...)
   {
-  pats_window<-pats_window %>% unique()
+  pats_window <- x %>% pull(appln_id) %>% unique()
   if(length(pats_window)>0)
     {
-    pat_tech <- patdat %>% filter(appln_id %in% pats_window) %>%
+    pat_tech <- patdat %>% filter(appln_id %in% pats_window)  %>%
       widyr::pairwise_count(item=cpc,feature = appln_id, diag=F)
 
     pat_net <- pat_tech %>% select(item1,item2) %>% as.matrix() %>% igraph:::graph_from_edgelist(directed=FALSE) %>% igraph:::simplify()
@@ -110,7 +114,7 @@ complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, re
       edge_count <- igraph:::ecount(g_inv)
       if(edge_count>=1)
         {
-        return(tibble(structural=nds(g_inv, node.sample=node.sample, reps=reps),edges=edge_count,nodes=node_count))
+        return(tibble(structural=nds(g_inv, ...),edges=edge_count,nodes=node_count))
         }else{
               return(tibble(structural=NA, edges=edge_count, nodes=node_count))
               }
@@ -124,17 +128,20 @@ complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, re
 
 #' Structural diversity
 #'
-#' @description The main function in this script structural_diversity() calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. An example is provided below showcasing the way the data is to be structured.
-#' @param patdat A data frame in the form of pat.df .
-#' @param mw Parameter setting the length of moving window , default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).
+#' @description The function calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. The function is set-up for parallel computing using the future.apply() approach. A progress bar from progressr is implemented. An example is provided below showcasing the way the data is to be structured.
+#' @param patdat A data frame in the form of pat.df.
+#' @param mw Parameter setting the length of moving window. Default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).
 #' @param node.sample The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.
-#' @param reps The number of repetitions used in the bootstrap, default set to 200.
+#' @param reps The number of repetitions used in the bootstrap. Default set to 200.
+#' @param core.workers The number of cores used in parallelization. Default set to 1.
 #' @importFrom Rdpack reprompt
 #' @import tidyverse
 #' @import widyr
 #' @import netdist
+#' @import future.apply
+#' @import progressr
 #'
-#' @return The function returns a data.frame with the name complexity including the follwoing information
+#' @return The function returns a data.frame with the name complexity including the following information:
 #' \itemize{
 #'   \item{\emph{tech}}{focal technology}
 #'   \item{\emph{year}}{year for which the calculation is done}
@@ -144,14 +151,14 @@ complexity_estimation <- function(patdat, pats_window, mw=3, node.sample=125, re
 #'   \item{\emph{patents}}{number of unique patent applications associated with this technology}
 #'   \item{\emph{cpcs}}{number of unique CPC codes associated with patents of this technology.}
 #' }
+#' @export
 #'@references
 #' \insertAllCited{}
 #'
-#' @export
 #'
 #' @examples
 #' structural_diversity(pat.df)
-structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
+structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200, core.workers=1)
   {
   #for year t, every patent with year in interval t:(t-mw+1) is duplicated into the year t, so that group_by for t includes also all older patents
   patdat <- patdat %>% rowwise() %>% mutate(window=paste(rep(year,mw)+c(0:(mw-1)),collapse="_"))
@@ -161,9 +168,27 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200)
                                                              cpcs_year=n_distinct(cpc))  %>%    ungroup()
 
   results_window <- patdat %>% group_by(window, tech) %>% summarise(patents_window=n_distinct(appln_id),
-                                                           cpcs_window=n_distinct(cpc),
-                                                           complexity_estimation(patdat, appln_id, mw, node.sample, reps))  %>%
-                                                           ungroup()
+                                                                    cpcs_window=n_distinct(cpc))  %>%
+                                                                    ungroup()
+  handlers(global = TRUE)
+  handlers("progress")
+  patdat <- patdat %>% mutate(tech_pats=paste(patdat$tech, patdat$window, sep="_")) %>% distinct()
+  split_data <- split(x=patdat, f=patdat$tech_pats)
+  plan(multisession, workers = core.workers)
+  with_progress({
+    p <- progressor(steps = length(split_data))
+    dfs <- future_lapply(split_data, future.seed=NULL, FUN=function(x, future.label=T, ...)
+    {
+      p()
+      Sys.sleep(.2)
+      complexity_estimation(x, patdat, mw, node.sample,reps)
+    })
+  })
+  dfs_df <- rbindlist(dfs,fill = T)
+  dfs_df <- bind_cols(id=names(dfs),dfs_df)
+  dfs_df <- dfs_df %>% separate(id,sep="_",into=c("tech","window")) %>%
+                        mutate(window=as.numeric(window))
+  results_window <- left_join(results_window,dfs_df,by=c("tech","window"))
   results_window <- left_join(results_year,results_window,by=c("tech","year"="window"))
   return(results_window)
   }
