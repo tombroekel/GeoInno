@@ -7,7 +7,7 @@
 NDS.intern(x, g, ...)
 }
 \arguments{
-\item{g}{The igraph object. Usually, the binarized version of the combinatorial network of CPC classes co-occurring on patents.}
+\item{g}{The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.}
 
 \item{s}{The (random) sample of nodes (position indizes in igraph object) for which the partial networks are to be extracted by means of a random walk.}
 

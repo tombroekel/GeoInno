@@ -38,7 +38,7 @@ giant.component <- function(graph, ...)
 #'@description NDS.intern() calculates the individual network diversity score as defined by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It is in the calculation of the structural diversity complexity measure of \insertCite{Broekel2019;textual}{GeoInno}.
 #'
 #' @param s The (random) sample of nodes (position indizes in igraph object) for which the partial networks are to be extracted by means of a random walk.
-#' @param g The igraph object. Usually, the binarized version of the combinatorial network of CPC classes co-occurring on patents.
+#' @param g The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.
 #' @param node.sample The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}
 #' @param reps The number of repetitions used in the bootstrap, default set to 200.
 #'
@@ -70,7 +70,7 @@ NDS.intern<-function(x,g,...)
 
 #' Function nds
 #' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib201;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
-#' @param g
+#' @param g An igraph network main component.
 #'
 #' @return A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 #' @export
@@ -196,7 +196,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200, core.w
 
 #' Create sample data
 #'
-#' @param num.pat Number of patents
+#' @param num.pat Number of patents.
 #'
 #' @return The function returns a data.frame suited to be used with other functions in the package
 #' @export

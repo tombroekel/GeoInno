@@ -7,7 +7,7 @@
 create_sample_data(num.pat = 200)
 }
 \arguments{
-\item{num.pat}{Number of patents}
+\item{num.pat}{Number of patents.}
 }
 \value{
 The function returns a data.frame suited to be used with other functions in the package

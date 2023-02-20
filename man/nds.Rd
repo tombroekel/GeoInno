@@ -7,7 +7,7 @@
 nds(g, ...)
 }
 \arguments{
-\item{g}{}
+\item{g}{An igraph network main component.}
 }
 \value{
 A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
