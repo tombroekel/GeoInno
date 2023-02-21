@@ -186,7 +186,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200, core.w
       complexity_estimation(x, patdat, mw, node.sample,reps)
     })
   })
-  dfs_df <- rbindlist(dfs,fill = T)
+  dfs_df <- data.table:::rbindlist(dfs,fill = T)
   dfs_df <- bind_cols(id=names(dfs),dfs_df)
   dfs_df <- dfs_df %>% separate(id,sep="_",into=c("tech","window")) %>%
                         mutate(window=as.numeric(window))
