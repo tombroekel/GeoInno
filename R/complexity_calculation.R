@@ -184,7 +184,7 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200, core.w
     {
       p()
       Sys.sleep(.2)
-      complexity_estimation(x, patdat, mw, node.sample,reps)
+      complexity_estimation(x, patdat=patdat, mw=mw, node.sample=node.sample,reps=reps)
     })
   })
   dfs_df <- data.table:::rbindlist(dfs,fill = T)
