@@ -98,7 +98,7 @@ nds<-function(g, ...)
 #'
 #' @return A tibble including the value of complexity and the edge as well as nodes counts of the giant component of the combinatorial network.
 #' @export
-complexity_estimation <- function(x, ...)
+complexity_estimation <- function(x, patdat=patdat, ...)
   {
   pats_window <- x %>% pull(appln_id) %>% unique()
   if(length(pats_window)>0)
