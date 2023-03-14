@@ -4,7 +4,7 @@
 \alias{complexity_estimation}
 \title{Complexity calculation}
 \usage{
-complexity_estimation(x, ...)
+complexity_estimation(x, patdat = patdat, ...)
 }
 \arguments{
 \item{patdat}{See function structural_diversity().}
