@@ -4,16 +4,16 @@
 \alias{NDS.intern}
 \title{individual network diversity score (iNDS)}
 \usage{
-NDS.intern(x, g, ...)
+NDS.intern(x, g, reps, ...)
 }
 \arguments{
 \item{g}{The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.}
 
+\item{reps}{The number of repetitions used in the bootstrap, default set to 200.}
+
 \item{s}{The (random) sample of nodes (position indizes in igraph object) for which the partial networks are to be extracted by means of a random walk.}
 
 \item{node.sample}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}}
-
-\item{reps}{The number of repetitions used in the bootstrap, default set to 200.}
 }
 \value{
 Returns the value of the iNDS measure.

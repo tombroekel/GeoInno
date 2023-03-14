@@ -4,7 +4,7 @@
 \alias{nds}
 \title{Function nds}
 \usage{
-nds(g, ...)
+nds(g, node.sample, reps, ...)
 }
 \arguments{
 \item{g}{An igraph network main component.}
@@ -13,5 +13,5 @@ nds(g, ...)
 A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 }
 \description{
-Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib201;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
 }

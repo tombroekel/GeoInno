@@ -48,7 +48,7 @@ giant.component <- function(graph, ...)
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' NDS.intern(g = my.graph, s=c(1:10), node.sample=10, reps=10)
-NDS.intern<-function(x,g,...)
+NDS.intern<-function(x, g, reps, ...)
 {
   set.seed(2)
   sample_vertex <- random_walk(g, start=x, steps=reps, mode="all")
@@ -69,18 +69,18 @@ NDS.intern<-function(x,g,...)
 }
 
 #' Function nds
-#' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib201;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+#' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
 #' @param g An igraph network main component.
 #'
 #' @return A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 #' @export
 #'
-nds<-function(g, ...)
+nds<-function(g, node.sample, reps, ...)
 {
   vsample<-ifelse(vcount(g)<node.sample, vcount(g), node.sample)
   set.seed(2)
   start_vertex<-sample(vcount(g), vsample, replace=F)
-  comp<-sort(unlist(lapply(start_vertex,NDS.intern,g)))
+  comp<-sort(unlist(lapply(start_vertex,NDS.intern,g,reps)))
   structural<-mean(comp,na.rm=T)
   structural <- ifelse(structural == 0, 1, structural)
   structural <- ifelse(structural > 1, 1, structural)
@@ -98,7 +98,7 @@ nds<-function(g, ...)
 #'
 #' @return A tibble including the value of complexity and the edge as well as nodes counts of the giant component of the combinatorial network.
 #' @export
-complexity_estimation <- function(x, patdat=patdat, ...)
+complexity_estimation <- function(x, patdat, ...)
   {
   pats_window <- x %>% pull(appln_id) %>% unique()
   if(length(pats_window)>0)
