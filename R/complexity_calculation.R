@@ -212,77 +212,23 @@ structural_diversity <- function(patdat, mw=3, node.sample=125, reps=200, core.w
 #'
 #' @examples
 #' complexity_frontier(complex.dat)
-complexity_frontier <- function(complex.dat, percentil=5)
-{
 
-pat_cpx <- pat_cpx[order(structural, decreasing = TRUE)]
+pat.df <- left_join(pat.df,test,by=c("year","tech"))
 
-# Set loop parameters (moving window, percentiles, empty list to store complexity and share of cpc in percentiles)
-mw <- 3
-y <- sort(unique(pat_cpx$year))
-mw <- lapply(y, function(i) seq(i - (mw - 1), i))
-pct <- seq(0, 1, by = .01)[-1]
-cpx_pct <- vector("list", length(pct)) # Output 1)
-cpc_pct <- vector("list", length(pct)) # Output 2)
-
-
-# Loop over all percentiles
-for (i in seq_along(pct)) {
-
-  # -> Percentile i
-  p_i <- pct[i]
-  pname_i <- p_i * 100
-
-  # Create new output container
-  out_cpx_pct <- vector("list", length(mw))
-  out_cpc_pct <- vector("list", length(mw))
-
-  # -> Loop over every moving window j
-  for (j in seq_along(mw)) {
-
-    # Select moving window mw_j, define end year of mw_y as y_j and filter data cpx_mw
-    mw_j <- mw[[j]]
-    y_j <- max(mw_j)
-    cpx_mw <- pat_cpx[year %in% mw_j]
-
-    # Define percentile
-    cpx_mw[, ":=" (idx = 1:.N, nobs = .N)] # Create index and number of observations in every year
-    cpx_mw[, pct := ceiling(nobs * p_i)] # Calculate cutoff variable
-    cpx_mw <- cpx_mw[idx <= pct] # Only keep observations that are below cutoff value, i.e. in that percentile p_i
-
-    # Share of CPCs in percentile
-    n <- nrow(cpx_mw)
-    cpc_share <- cpx_mw[, .(cpc_count = .N), by = cpc]
-    cpc_share[, cpc_share := (cpc_count / n)]
-    cpc_share$year <- y_j
-
-    # Calculate complexity in moving window and share of techs in that percentile
-    cpx_mw <- cpx_mw[, .(mean_structural = mean(structural, na.rm = TRUE))] # Calculate regional mean and sumamrize data
-    cpx_mw$year <- y_j
-
-    # Save in output list
-    out_cpx_pct[[j]] <- cpx_mw
-    out_cpc_pct[[j]] <- cpc_share
-  }
-
-  # Tidy output -> create one single data frame
-  out_cpx_pct <- Reduce("rbind", out_cpx_pct)
-  out_cpx_pct$pct <- pname_i
-
-  out_cpc_pct <- Reduce("rbind", out_cpc_pct)
-  out_cpc_pct$pct <- pname_i
-
-  # Save output in general output
-  cpx_pct[[i]] <- out_cpx_pct
-  cpc_pct[[i]] <- out_cpc_pct
-  print(i)
-}
-
-# Tidy data -> create one single data frame
-cpx_pct <- Reduce("rbind", cpx_pct)
-cpc_pct <- Reduce("rbind", cpc_pct)
-write.xlsx(cpc_pct,file="Complexity_percentiles.xlsx")
-cpc_pi <- cpc_pct[pct == 5] # Select relevant percentile
+complexity_frontier <- function(complex.dat, top=0.05, mw=1)
+  {
+  complex.dat <- complex.dat %>% distinct(appln_id, cpc,tech, year, structural)
+  if(mw>0)
+    {
+    complex.dat <- complex.dat %>% rowwise() %>% mutate(window=paste(rep(year, mw)+c(0:(mw-1)),collapse="_"))
+    complex.dat <- complex.dat %>%
+                  separate_rows(window, sep="_") %>%
+                  mutate(window=as.numeric(window)) %>%
+                  arrange(window,desc(structural))
+    cfrontier <- complex.dat %>% group_by(window) %>% slice(1:quantile(c(1:n()),probs=top)) %>% summarise(vfrontier=median(structural,na.rm=T)) %>% ungroup()
+    cfrontier <- cfrontier %>% rename(year=window)
+    }
+  return(cfrontier)
 }
 
 
