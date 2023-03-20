@@ -4,7 +4,7 @@
 \alias{NDS.intern}
 \title{individual network diversity score (iNDS)}
 \usage{
-NDS.intern(x, g, reps, ...)
+NDS.intern(x = c(1:10), g, reps, ...)
 }
 \arguments{
 \item{g}{The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.}

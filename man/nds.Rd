@@ -8,6 +8,10 @@ nds(g, node.sample, reps, ...)
 }
 \arguments{
 \item{g}{An igraph network main component.}
+
+\item{node.sample}{The sample of nodes for which the calculation is to be done.}
+
+\item{reps}{The number of repetition of the bootstrap.}
 }
 \value{
 A numeric value of the NDS-score, after a log-transformation and multiplication with -1.

@@ -26,12 +26,12 @@ structural_diversity(
 \value{
 The function returns a data.frame with the name complexity including the following information:
 \itemize{
-  \item{\emph{tech}}{ focal technology}
-  \item{\emph{year}}{ year for which the calculation is done}
-  \item{\emph{tech_nodes}}{ number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology}
-  \item{\emph{tech_edges}}{ number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology}
-  \item{\emph{structural}}{ the values of the measure of structural diversity}
-  \item{\emph{patents}}{ number of unique patent applications associated with this technology}
+  \item{\emph{tech}}{The focal technology.}
+  \item{\emph{year}}{The year for which the calculation is done.}
+  \item{\emph{tech_nodes}}{The number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
+  \item{\emph{tech_edges}}{The number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
+  \item{\emph{structural}}{The values of the measure of structural diversity.}
+  \item{\emph{patents}}{The number of unique patent applications associated with this technology.}
   \item{\emph{cpcs}}{ number of unique CPC codes associated with patents of this technology.}
 }
 }

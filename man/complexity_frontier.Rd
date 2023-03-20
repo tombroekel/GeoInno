@@ -4,19 +4,25 @@
 \alias{complexity_frontier}
 \title{Complexity frontier}
 \usage{
-complexity_frontier(complex.dat, percentil = 5)
+complexity_frontier(complexity_dat, top = 0.05)
+}
+\arguments{
+\item{top}{Percentile for which frontier is to be estimated. E.g. top=0.05 corresponds to the consideration of the 5 percent most complex knowledge components.}
+
+\item{complexity.dat}{A dataframe with columns: \emph{geo}, \emph{appln_id}, \emph{tech}, \emph{year}, and \emph{structural}. Only distinct technology occurrences are to be included per \emph{appln_id}. The example data set \emph{complexity.dat} illustrates the dataframe structure.}
 }
 \value{
 The function returns a data.frame with the name complexity.frontier including the following information:
 \itemize{
-  \item{\emph{tech}}{ focal technology}
-  \item{\emph{year}}{ year for which the calculation is done}#' }
+  \item{\emph{geo}}{The spatial unit for which the frontier is calculated.}
+  \item{\emph{year}}{The year for which the frontier is calculated.}
+  \item{\emph{vfrontier}}{The value of the complexity frontier.}}
 }
 \description{
-The function ...
+The function calculates the complexity frontier for a range of spatial units following the procedure described in \insertCite{Mewes2022;textual}{GeoInno}. That is, for each spatial unit and year, the median of the x-percentil (top) most complex knowledge components is calculated. Knowledge components are represented by distinct occurences of technologies on patents. The latter means that each appln_id is associated to the same technology only once.
 }
 \examples{
-complexity_frontier(complex.dat)
+complexity_frontier(complexity_dat, top=0.05)
 }
 \references{
 \insertAllCited{}

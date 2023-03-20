@@ -4,17 +4,24 @@
 \alias{create_sample_data}
 \title{Create sample data}
 \usage{
-create_sample_data(num.pat = 200)
+create_sample_data(num.pat = 200, geos = 10)
 }
 \arguments{
-\item{num.pat}{Number of patents.}
+\item{num.pat}{Number of spatial units.}
 }
 \value{
-The function returns a data.frame suited to be used with other functions in the package
+The function returns a data.frame suited to be used with the function \emph{structural_complexity}.
+\itemize{
+  \item{\emph{geo}}{The ids of the spatial unit, e.g. regions.}
+  \item{\emph{year}}{The year for which the calculation is done.}
+  \item{\emph{appln_id}}{Unique patent document identifier.}
+  \item{\emph{cpc}}{Patent class identifier with more digits than technology.}
+  \item{\emph{tech}}{Technology identifier with less digits than patent class.}
+  \item{\emph{structural}}{Random number between 1 and 12 representing the value of structural complexity.}}
 }
 \description{
 Create sample data
 }
 \examples{
-create_sample_data(200)
+create_sample_data(num.pat=200, geos=10)
 }

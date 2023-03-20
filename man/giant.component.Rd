@@ -8,8 +8,6 @@ giant.component(graph, ...)
 }
 \arguments{
 \item{graph}{An igraph object from which the giant component needs to be extracted.}
-
-\item{...}{}
 }
 \value{
 The function returns an igraph object representing the giant component of a network
