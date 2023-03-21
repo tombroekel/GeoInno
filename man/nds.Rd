@@ -4,18 +4,22 @@
 \alias{nds}
 \title{Function nds}
 \usage{
-nds(g, node.sample, reps, ...)
+nds(g = g_sample, s = 125, reps_i = 200)
 }
 \arguments{
 \item{g}{An igraph network main component.}
 
-\item{node.sample}{The sample of nodes for which the calculation is to be done.}
+\item{s}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}}
 
-\item{reps}{The number of repetition of the bootstrap.}
+\item{reps_i}{The number of repetition of the bootstrap.}
 }
 \value{
 A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 }
 \description{
 Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+}
+\examples{
+my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
+nds(g = my.graph, s = 125, reps_i = 10)
 }

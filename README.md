@@ -1,5 +1,10 @@
 
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
 # GeoInno
+
+<!-- badges: start -->
+<!-- badges: end -->
 
 The package’s aim is to provide a set of tools for working with patent
 data that are frequently employed in the context of research related to
@@ -21,31 +26,27 @@ be installed. The package **netdist** can be found here:
 
 Broekel, T., 2019. Using structural diversity to measure the complexity
 of technologies. PLoS One 14, 1–27.
-<https://doi.org/10.1371/journal.pone.0216856>
-
-Mewes, L., Broekel, T., 2022. Technological complexity and economic
-growth of regions. Res. Policy 51, 104156.
-<https://doi.org/10.1016/j.respol.2020.104156>
+<https://doi.org/10.1371/journal.pone.0216856> Mewes, L., Broekel, T.,
+2022. Technological complexity and economic growth of regions. Res.
+Policy 51, 104156. <https://doi.org/10.1016/j.respol.2020.104156>
 
 ## Installation
 
-You can install the development version of GeoInno like this:
+You can install the development version of GeoInno from
+[GitHub](https://tombroekel/GeoInno) with:
 
 ``` r
-install.packages("devtools")
-library(devtools) 
-devtools::install_github("tombroekel/GeoInno", force = T)
+# install.packages("devtools")
+devtools::install_github("tombroekel/GeoInno")
 ```
 
 ## Example
 
-This is a basic example which shows you how to use the main function
-*structural_diversity()*
+This is a basic example:
 
 ``` r
 library(GeoInno)
+## Calculate structural diversity using artificial data set pat_df
 
-#Calculate structural diversity using artificial data set pat.df, which is created by create_sample_data()
-
-complexity <- structural_diversity(pat.df)
+complexity <- structural_diversity(pat_df)
 ```

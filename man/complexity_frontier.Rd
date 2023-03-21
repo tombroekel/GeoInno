@@ -4,25 +4,28 @@
 \alias{complexity_frontier}
 \title{Complexity frontier}
 \usage{
-complexity_frontier(complexity_dat, top = 0.05)
+complexity_frontier(c.dat = complexity_dat, top = 0.05, mw = 1)
 }
 \arguments{
+\item{c.dat}{A dataframe with columns: \emph{geo}, \emph{appln_id}, \emph{tech}, \emph{year}, and \emph{structural}. Only distinct technology occurrences are to be included per \emph{appln_id}. The example data set \emph{complexity_dat} illustrates the dataframe structure.}
+
 \item{top}{Percentile for which frontier is to be estimated. E.g. top=0.05 corresponds to the consideration of the 5 percent most complex knowledge components.}
 
-\item{complexity.dat}{A dataframe with columns: \emph{geo}, \emph{appln_id}, \emph{tech}, \emph{year}, and \emph{structural}. Only distinct technology occurrences are to be included per \emph{appln_id}. The example data set \emph{complexity.dat} illustrates the dataframe structure.}
+\item{mw}{Number of years considered in the mowing window in the type of \emph{t:(t+mw-1)}.}
 }
 \value{
 The function returns a data.frame with the name complexity.frontier including the following information:
 \itemize{
-  \item{\emph{geo}}{The spatial unit for which the frontier is calculated.}
-  \item{\emph{year}}{The year for which the frontier is calculated.}
-  \item{\emph{vfrontier}}{The value of the complexity frontier.}}
+  \item{geo}{The spatial unit for which the frontier is calculated.}
+  \item{year}{The year for which the frontier is calculated.}
+  \item{vfrontier}{The value of the complexity frontier.}
+  }
 }
 \description{
-The function calculates the complexity frontier for a range of spatial units following the procedure described in \insertCite{Mewes2022;textual}{GeoInno}. That is, for each spatial unit and year, the median of the x-percentil (top) most complex knowledge components is calculated. Knowledge components are represented by distinct occurences of technologies on patents. The latter means that each appln_id is associated to the same technology only once.
+The function calculates the complexity frontier for a range of spatial units following the procedure described in \insertCite{Mewes2022;textual}{GeoInno}. That is, for each spatial unit and year, the median of the x-percentil (top) most complex knowledge components is calculated. Knowledge components are represented by distinct occurences of technologies on patents. The latter means that each \emph{appln_id} is associated to the same technology only once.
 }
 \examples{
-complexity_frontier(complexity_dat, top=0.05)
+complexity_frontier(c.dat = complexity_dat, top = 0.05, mw = 1)
 }
 \references{
 \insertAllCited{}

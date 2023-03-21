@@ -5,7 +5,7 @@
 \title{Structural diversity}
 \usage{
 structural_diversity(
-  patdat,
+  p.dat = pat_df,
   mw = 3,
   node.sample = 125,
   reps = 200,
@@ -13,7 +13,7 @@ structural_diversity(
 )
 }
 \arguments{
-\item{patdat}{A data frame in the form of pat.df.}
+\item{p.dat}{A data frame in the form of \emph{pat_df}.}
 
 \item{mw}{Parameter setting the length of moving window. Default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).}
 
@@ -26,20 +26,20 @@ structural_diversity(
 \value{
 The function returns a data.frame with the name complexity including the following information:
 \itemize{
-  \item{\emph{tech}}{The focal technology.}
-  \item{\emph{year}}{The year for which the calculation is done.}
-  \item{\emph{tech_nodes}}{The number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-  \item{\emph{tech_edges}}{The number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-  \item{\emph{structural}}{The values of the measure of structural diversity.}
-  \item{\emph{patents}}{The number of unique patent applications associated with this technology.}
-  \item{\emph{cpcs}}{ number of unique CPC codes associated with patents of this technology.}
+  \item{tech}{The focal technology.}
+  \item{year}{The year for which the calculation is done.}
+  \item{tech_nodes}{The number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
+  \item{tech_edges}{The number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
+  \item{structural}{The values of the measure of structural diversity.}
+  \item{patents}{The number of unique patent applications associated with this technology.}
+  \item{cpcs}{The number of unique CPC codes associated with patents of this technology.}
 }
 }
 \description{
 The function calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. The function is set-up for parallel computing using the future.apply() approach. A progress bar from progressr is implemented. An example is provided below showcasing the way the data is to be structured.
 }
 \examples{
-structural_diversity(pat.df)
+structural_diversity(pat_df)
 }
 \references{
 \insertAllCited{}

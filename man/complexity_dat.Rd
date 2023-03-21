@@ -6,13 +6,14 @@
 \title{Artificial data set to illustrate the calculation of the complexity frontier.
 A data set illustrating the form and style how the data should be structured to be used by the function \emph{complexity_frontier}.}
 \format{
+## `complexity_dat`
 A data frame with 995 rows and 7 columns:
 \describe{
-  \item{\emph{geo}}{The ids of the spatial units, e.g. regions.}
-  \item{\emph{year}}{The year for which the calculation is done.}
-  \item{\emph{appln_id}}{Unique patent document identifier.}
-  \item{\emph{tech}}{Technology identifier with less digits than patent class.}
-  \item{\emph{structural}}{Random number between 1 and 12 representing the value of structural complexity.}
+  \item{geo}{The ids of the spatial units, e.g. regions.}
+  \item{year}{The year for which the calculation is done.}
+  \item{appln_id}{Unique patent document identifier.}
+  \item{tech}{Technology identifier with less digits than patent class.}
+  \item{structural}{Random number between 1 and 12 representing the value of structural complexity.}
 }
 }
 \source{

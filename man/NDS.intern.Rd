@@ -4,16 +4,14 @@
 \alias{NDS.intern}
 \title{individual network diversity score (iNDS)}
 \usage{
-NDS.intern(x = c(1:10), g, reps, ...)
+NDS.intern(node_x = 1, g = g_sample, reps_i = 200)
 }
 \arguments{
+\item{node_x}{The randomly sampled node (position index in igraph object) for which the partial network is to be extracted by means of a random walk.}
+
 \item{g}{The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.}
 
-\item{reps}{The number of repetitions used in the bootstrap, default set to 200.}
-
-\item{s}{The (random) sample of nodes (position indizes in igraph object) for which the partial networks are to be extracted by means of a random walk.}
-
-\item{node.sample}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}}
+\item{reps_i}{The number of repetitions used in the bootstrap, default set to 200.}
 }
 \value{
 Returns the value of the iNDS measure.
@@ -23,5 +21,5 @@ NDS.intern() calculates the individual network diversity score as defined by \in
 }
 \examples{
 my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
-NDS.intern(g = my.graph, s=c(1:10), node.sample=10, reps=10)
+NDS.intern(node_x=1, g = my.graph, reps_i=10)
 }

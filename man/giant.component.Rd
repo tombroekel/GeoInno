@@ -4,7 +4,7 @@
 \alias{giant.component}
 \title{Giant component}
 \usage{
-giant.component(graph, ...)
+giant.component(graph)
 }
 \arguments{
 \item{graph}{An igraph object from which the giant component needs to be extracted.}

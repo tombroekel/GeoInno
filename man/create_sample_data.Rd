@@ -7,17 +7,20 @@
 create_sample_data(num.pat = 200, geos = 10)
 }
 \arguments{
-\item{num.pat}{Number of spatial units.}
+\item{num.pat}{Number of patents.}
+
+\item{geos}{Number of spatial units.}
 }
 \value{
 The function returns a data.frame suited to be used with the function \emph{structural_complexity}.
 \itemize{
-  \item{\emph{geo}}{The ids of the spatial unit, e.g. regions.}
-  \item{\emph{year}}{The year for which the calculation is done.}
-  \item{\emph{appln_id}}{Unique patent document identifier.}
-  \item{\emph{cpc}}{Patent class identifier with more digits than technology.}
-  \item{\emph{tech}}{Technology identifier with less digits than patent class.}
-  \item{\emph{structural}}{Random number between 1 and 12 representing the value of structural complexity.}}
+  \item{geo}{The ids of the spatial unit, e.g. regions.}
+  \item{year}{The year for which the calculation is done.}
+  \item{appln_id}{Unique patent document identifier.}
+  \item{cpc}{Patent class identifier with more digits than technology.}
+  \item{tech}{Technology identifier with less digits than patent class.}
+  \item{structural}{Random number between 1 and 12 representing the value of structural complexity.}
+  }
 }
 \description{
 Create sample data

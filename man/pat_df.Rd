@@ -3,15 +3,15 @@
 \docType{data}
 \name{pat_df}
 \alias{pat_df}
-\title{Artificial data set to illustrate the calculation of the technological complexity of patents
-A data set illustrating the form and style how patent data should be structured to be used by the function \emph{structural_complexity}.}
+\title{Import needed functions}
 \format{
+## `pat_df`
 A data frame with 1,000 rows and 4 columns:
 \describe{
-  \item{appln_id}{application number of patent}
-  \item{cpc}{IPC/CPC code assigned to a patent}
-  \item{tech}{Technology code, usually 2 or 4-digit CPC code}
-  \item{year}{Year of observation}
+  \item{appln_id}{application number of patent.}
+  \item{cpc}{IPC/CPC code assigned to a patent.}
+  \item{tech}{Technology code, usually 2 or 4-digit CPC code.}
+  \item{year}{Year of observation.}
 }
 }
 \source{
