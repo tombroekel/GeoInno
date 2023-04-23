@@ -16,9 +16,9 @@ complexity_frontier(c.dat = complexity_dat, top = 0.05, mw = 1)
 \value{
 The function returns a data.frame with the name complexity.frontier including the following information:
 \itemize{
-  \item{geo} {The spatial unit for which the frontier is calculated.}
-  \item{year} {The year for which the frontier is calculated.}
-  \item{vfrontier} {The value of the complexity frontier.}
+  \item{\emph{geo}} {The spatial unit for which the frontier is calculated.}
+  \item{\emph{year}} {The year for which the frontier is calculated.}
+  \item{\emph{vfrontier}} {The value of the complexity frontier.}
   }
 }
 \description{

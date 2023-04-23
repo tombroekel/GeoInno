@@ -219,9 +219,9 @@ structural_diversity <- function(p.dat = pat_df, mw = 3, node.sample = 125, reps
 #' @param mw Number of years considered in the mowing window in the type of \emph{t:(t+mw-1)}.
 #' @return The function returns a data.frame with the name complexity.frontier including the following information:
 #' \itemize{
-#'   \item{geo} {The spatial unit for which the frontier is calculated.}
-#'   \item{year} {The year for which the frontier is calculated.}
-#'   \item{vfrontier} {The value of the complexity frontier.}
+#'   \item{\emph{geo}} {The spatial unit for which the frontier is calculated.}
+#'   \item{\emph{year}} {The year for which the frontier is calculated.}
+#'   \item{\emph{vfrontier}} {The value of the complexity frontier.}
 #'   }
 #' @export
 #'@references
