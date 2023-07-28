@@ -169,7 +169,7 @@ structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps
   p.dat <- p.dat %>% dplyr::mutate(tech_pats = paste(p.dat$tech,
                                                      p.dat$window, sep = "_")) %>% dplyr::distinct()
   split_data <- base::split(x = p.dat, f = p.dat$tech_pats)
-  future.apply::plan(multisession, workers = core.workers)
+  future::plan(multisession, workers = core.workers)
   with_progress({
     p <- progressor::progressor(steps = length(split_data))
     dfs <- future.apply::future_lapply(split_data, future.seed = NULL,
