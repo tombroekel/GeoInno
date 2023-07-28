@@ -142,9 +142,10 @@ nds<-function(g = g, s = 125, reps_i = 200)#g was g_sample?
 #'
 #' @examples
 #' structural_diversity(pat_df)
-structural_diversity <- function(p.dat = pat_df, mw = 3, node.sample = 125, reps = 200, core.workers = 1)
-  {
-  pat_df<-NULL
+structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps = 200,
+                                  core.workers = 1)
+{
+  pat_df <- NULL
   year <- NULL
   tech <- NULL
   appln_id <- NULL
@@ -154,59 +155,72 @@ structural_diversity <- function(p.dat = pat_df, mw = 3, node.sample = 125, reps
   item2 <- NULL
   id <- NULL
   cpc <- NULL
-  #for year t, every patent with year in interval t:(t-mw+1) is duplicated into the year t, so that group_by for t includes also all older patents
-  p.dat <- p.dat %>% dplyr::rowwise() %>% dplyr::mutate(window=paste(rep(year, mw)+c(0:(mw-1)),collapse="_"))
-  p.dat <- p.dat %>% tidyr::separate_rows(window, sep="_")
-  p.dat <- p.dat %>% dplyr::mutate(window=as.numeric(window))
-  results_year <- p.dat %>% dplyr::group_by(year, tech) %>% dplyr::summarise(patents_year=dplyr::n_distinct(appln_id),
-                                                             cpcs_year=dplyr::n_distinct(cpc))  %>%  dplyr::ungroup()
-
-  results_window <- p.dat %>% dplyr::group_by(window, tech) %>% dplyr::summarise(patents_window=dplyr::n_distinct(appln_id),
-                                                                    cpcs_window=dplyr::n_distinct(cpc))  %>% dplyr::ungroup()
-  handlers(global = TRUE)
-  handlers("progress")
-  p.dat <- p.dat %>% dplyr::mutate(tech_pats=paste(p.dat$tech, p.dat$window, sep="_")) %>% dplyr::distinct()
-  split_data <- split(x=p.dat, f=p.dat$tech_pats)
-  plan(multisession, workers = core.workers)
+  p.dat <- p.dat %>% dplyr::rowwise() %>% dplyr::mutate(window = paste(rep(year,
+                                                                           mw) + c(0:(mw - 1)), collapse = "_"))
+  p.dat <- p.dat %>% tidyr::separate_rows(window, sep = "_")
+  p.dat <- p.dat %>% dplyr::mutate(window = as.numeric(window))
+  results_year <- p.dat %>% dplyr::group_by(year, tech) %>%
+    dplyr::summarise(patents_year = dplyr::n_distinct(appln_id),
+                     cpcs_year = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+  results_window <- p.dat %>% dplyr::group_by(window, tech) %>%
+    dplyr::summarise(patents_window = dplyr::n_distinct(appln_id),
+                     cpcs_window = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+  progressr::handlers("progress")
+  p.dat <- p.dat %>% dplyr::mutate(tech_pats = paste(p.dat$tech,
+                                                     p.dat$window, sep = "_")) %>% dplyr::distinct()
+  split_data <- base::split(x = p.dat, f = p.dat$tech_pats)
+  future.apply::plan(multisession, workers = core.workers)
   with_progress({
-    p <- progressor(steps = length(split_data))
-    dfs <- future_lapply(split_data, future.seed=NULL, FUN=function(x, future.label=T, ...)
-    {
-      p()
-      Sys.sleep(.2)
-      pats_window <- x %>% dplyr::pull(appln_id) %>% unique()
-      if(length(pats_window)>0)
-      {
-        pat_tech <- p.dat %>% dplyr::filter(appln_id %in% pats_window) %>% widyr::pairwise_count(item = cpc, feature = appln_id, diag=F)
-        pat_net <- pat_tech %>% dplyr::select(item1,item2) %>% as.matrix() %>% igraph::graph_from_edgelist(directed=FALSE) %>% igraph::simplify()
-        if(igraph::ecount(pat_net)>0)
-          {
-          g_inv <- giant.component(pat_net)
-          node_count <- igraph::vcount(g_inv)
-          edge_count <- igraph::ecount(g_inv)
-          if(edge_count>=1)
-            {
-            tibble::tibble(structural = nds(g = g_inv, s = node.sample, reps_i=reps), edges = edge_count, nodes = node_count)
-            }else{
-              tibble::tibble(structural=NA, edges = edge_count, nodes = node_count)
-            }
-          }else{
-            tibble::tibble(structural=NA,edges=NA,nodes=NA)
-          }
-        }else{
-          tibble::tibble(structural=NA,edges=NA,nodes=NA)
-      }
-      #complexity_estimation(x, patdat=p.dat, mw=mw, node.sample=node.sample,reps=reps)
-    })
+    p <- progressor::progressor(steps = length(split_data))
+    dfs <- future.apply::future_lapply(split_data, future.seed = NULL,
+                                       FUN = function(x, future.label = T, ...) {
+                                         p()
+                                         Sys.sleep(0.2)
+                                         pats_window <- x %>% dplyr::pull(appln_id) %>%
+                                           unique()
+                                         if (length(pats_window) > 0) {
+                                           pat_tech <- p.dat %>% dplyr::filter(appln_id %in%
+                                                                                 pats_window) %>% widyr::pairwise_count(item = cpc,
+                                                                                                                        feature = appln_id, diag = F)
+                                           pat_net <- pat_tech %>% dplyr::select(item1,
+                                                                                 item2) %>% as.matrix() %>% igraph::graph_from_edgelist(directed = FALSE) %>%
+                                             igraph::simplify()
+                                           if (igraph::ecount(pat_net) > 0) {
+                                             g_inv <- giant.component(pat_net)
+                                             node_count <- igraph::vcount(g_inv)
+                                             edge_count <- igraph::ecount(g_inv)
+                                             if (edge_count >= 1) {
+                                               tibble::tibble(structural = nds(g = g_inv,
+                                                                               s = node.sample, reps_i = reps), edges = edge_count,
+                                                              nodes = node_count)
+                                             }
+                                             else {
+                                               tibble::tibble(structural = NA, edges = edge_count,
+                                                              nodes = node_count)
+                                             }
+                                           }
+                                           else {
+                                             tibble::tibble(structural = NA, edges = NA,
+                                                            nodes = NA)
+                                           }
+                                         }
+                                         else {
+                                           tibble::tibble(structural = NA, edges = NA,
+                                                          nodes = NA)
+                                         }
+                                       })
   })
   dfs_df <- data.table::rbindlist(dfs, fill = T)
-  dfs_df <- dplyr::bind_cols(id=names(dfs), dfs_df)
-  dfs_df <- dfs_df %>% tidyr::separate(id,sep = "_",into=c("tech","window")) %>%
-                        dplyr::mutate(window = as.numeric(window))
-  results_window <- dplyr::left_join(results_window, dfs_df, by=c("tech","window"), na_matches="never")
-  results_window <- dplyr::left_join(results_year, results_window,by=c("tech","year"="window"), na_matches="never")
+  dfs_df <- dplyr::bind_cols(id = names(dfs), dfs_df)
+  dfs_df <- dfs_df %>% tidyr::separate(id, sep = "_", into = c("tech",
+                                                               "window")) %>% dplyr::mutate(window = as.numeric(window))
+  results_window <- dplyr::left_join(results_window, dfs_df,
+                                     by = c("tech", "window"), na_matches = "never")
+  results_window <- dplyr::left_join(results_year, results_window,
+                                     by = c("tech", year = "window"), na_matches = "never")
   return(results_window)
-  }
+}
+
 
 #' Complexity frontier
 #'
