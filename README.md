@@ -18,9 +18,8 @@ Mewes & Broekel (2022) use to aggregate the technology-specific index to
 the level of a spatial unit (regions or countries).
 
 The package requires the packages **igraph**, **tidyverse**,
-**widyr**,**future**, **future.apply**, **data.table**, **netdist** to
-be installed. The package **netdist** can be found here:
-<https://github.com/alan-turing-institute/network-comparison/>
+**widyr**,**future**, **future.apply** and **data.table** to be
+installed.
 
 ## References
 

@@ -20,7 +20,7 @@ knitr::opts_chunk$set(
 
 The package's aim is to provide a set of tools for working with patent data that are frequently employed in the context of research related to the Geography of Innovation literature. It will be continously expanded. At this stage, its main function is *structural_diversity()*, which calculates the measure of **structural diversity** as defined by Broekel (2019) from patent data. It also features a number of support functions and the function *complexity_frontier()* used to transform an index of technological complexity to the so-called **complexity frontier**, which Mewes & Broekel (2022) use to aggregate the technology-specific index to the level of a spatial unit (regions or countries).
 
-The package requires the packages **igraph**, **tidyverse**, **widyr**,**future**, **future.apply**, **data.table**, **netdist** to be installed. The package **netdist** can be found here: https://github.com/alan-turing-institute/network-comparison/ 
+The package requires the packages **igraph**, **tidyverse**, **widyr**,**future**, **future.apply** and **data.table** to be installed.
 
 ## References
 

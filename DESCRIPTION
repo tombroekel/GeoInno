@@ -10,7 +10,6 @@ LazyData: true
 Imports:
     tidyverse,
     widyr,
-    netdist,
     Rdpack,
     data.table,
     future,

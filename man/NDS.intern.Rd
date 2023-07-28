@@ -4,7 +4,7 @@
 \alias{NDS.intern}
 \title{individual network diversity score (iNDS)}
 \usage{
-NDS.intern(node_x = 1, g = g_sample, reps_i = 200)
+NDS.intern(node_x = x, g = g, reps_i = 200)
 }
 \arguments{
 \item{node_x}{The randomly sampled node (position index in igraph object) for which the partial network is to be extracted by means of a random walk.}

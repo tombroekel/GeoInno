@@ -54,7 +54,6 @@ giant.component <- function(graph)
 #' @importFrom Rdpack reprompt
 #' @import tidyverse
 #' @import widyr
-#' @import netdist
 #' @import future.apply
 #' @import progressr
 #' @import future
@@ -71,7 +70,7 @@ giant.component <- function(graph)
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' NDS.intern(node_x=1, g = my.graph, reps_i=10)
-NDS.intern<-function(node_x=1, g = g_sample, reps_i=200)
+NDS.intern<-function(node_x=x, g = g, reps_i=200)
   {
   set.seed(123)
   sample_vertex <- igraph::random_walk(graph=g, start=node_x, steps = reps_i, mode="all")
@@ -80,10 +79,9 @@ NDS.intern<-function(node_x=1, g = g_sample, reps_i=200)
   modules_g <- igraph::cluster_walktrap(sample_net, steps = 4, merges = TRUE, modularity = TRUE, membership = TRUE)
   m <- data.frame(igraph::sizes(modules_g))
   lap <- eigen(igraph::laplacian_matrix(sample_net, normalized=F))$values
-  graphletis <- count_graphlets_for_graph(sample_net, 4) #to be replaced with igraph: count_motifs(g, 3)
-  graph.3 <- sum(graphletis[paste("G",1:2,sep="")])
-  graph.4 <- sum(graphletis[paste("G",3:8,sep="")])
-  a.module <- length(modules_g)/vcount(sample_net)
+  graph.3 <-  igraph::count_motifs(sample_net, 3)
+  graph.4 <-  igraph::count_motifs(sample_net, 4)
+  a.module <- length(modules_g)/igraph::vcount(sample_net)
   v.module <- var(m$Freq)/mean(m$Freq)
   v.l <- var(lap)/mean(lap)
   r.motif <- graph.3/graph.4
@@ -91,7 +89,6 @@ NDS.intern<-function(node_x=1, g = g_sample, reps_i=200)
   nds.s <- ifelse(is.infinite(nds.s)==T | is.na(nds.s) ==T, 0, nds.s)
   return(nds.s)
 }
-if(getRversion() >= "2.15.1")  utils::globalVariables(c("g_sample"))
 
 #' Function nds
 #' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
@@ -105,7 +102,7 @@ if(getRversion() >= "2.15.1")  utils::globalVariables(c("g_sample"))
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' nds(g = my.graph, s = 125, reps_i = 10)
-nds<-function(g = g_sample, s = 125, reps_i = 200)
+nds<-function(g = g, s = 125, reps_i = 200)#g was g_sample?
   {
   vsample<-ifelse(igraph::vcount(g) < s, igraph::vcount(g), s)
   set.seed(123)
