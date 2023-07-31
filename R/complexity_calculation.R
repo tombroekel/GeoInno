@@ -70,9 +70,10 @@ giant.component <- function(graph)
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' NDS.intern(node_x=1, g = my.graph, reps_i=10)
-NDS.intern<-function(node_x=x, g = g, reps_i=200)
+NDS.intern<-function(node_x=x, g, reps_i)
   {
   set.seed(123)
+  if(missing(reps_i)){reps_i=200}
   sample_vertex <- igraph::random_walk(graph=g, start=node_x, steps = reps_i, mode="all")
   sample_net <- igraph::induced.subgraph(graph = g, vids = sample_vertex)
   set.seed(123)
@@ -102,12 +103,14 @@ NDS.intern<-function(node_x=x, g = g, reps_i=200)
 #' @examples
 #' my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
 #' nds(g = my.graph, s = 125, reps_i = 10)
-nds<-function(g = g, s = 125, reps_i = 200)#g was g_sample?
+nds<-function(g,s,reps_i)
   {
+  if(missing(s)){s=125}
+  if(missing(reps_i)){reps_i=200}
   vsample<-ifelse(igraph::vcount(g) < s, igraph::vcount(g), s)
   set.seed(123)
   start_vertex<-sample(igraph::vcount(g), vsample, replace=F)
-  comp<-sort(unlist(lapply(start_vertex, NDS.intern, g = g, reps_i = reps_i)))
+  comp<-sort(unlist(lapply(start_vertex, NDS.intern, g, reps_i)))
   structural <- mean(comp, na.rm=T)
   structural <- ifelse(structural == 0, 1, structural)
   structural <- ifelse(structural > 1, 1, structural)
@@ -155,20 +158,24 @@ structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps
   item2 <- NULL
   id <- NULL
   cpc <- NULL
-  p.dat <- p.dat %>% dplyr::rowwise() %>% dplyr::mutate(window = paste(rep(year,
-                                                                           mw) + c(0:(mw - 1)), collapse = "_"))
+  p.dat <- p.dat %>% dplyr::rowwise() %>% dplyr::mutate(window = paste(rep(year, mw) + c(0:(mw - 1)), collapse = "_"))
   p.dat <- p.dat %>% tidyr::separate_rows(window, sep = "_")
   p.dat <- p.dat %>% dplyr::mutate(window = as.numeric(window))
+
   results_year <- p.dat %>% dplyr::group_by(year, tech) %>%
-    dplyr::summarise(patents_year = dplyr::n_distinct(appln_id),
-                     cpcs_year = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+                            dplyr::summarise(patents_year = dplyr::n_distinct(appln_id),
+                            cpcs_year = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+
   results_window <- p.dat %>% dplyr::group_by(window, tech) %>%
-    dplyr::summarise(patents_window = dplyr::n_distinct(appln_id),
-                     cpcs_window = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+                              dplyr::summarise(patents_window = dplyr::n_distinct(appln_id),
+                              cpcs_window = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+
   progressr::handlers("progress")
   p.dat <- p.dat %>% dplyr::mutate(tech_pats = paste(p.dat$tech,
                                                      p.dat$window, sep = "_")) %>% dplyr::distinct()
+
   split_data <- base::split(x = p.dat, f = p.dat$tech_pats)
+
   future::plan(multisession, workers = core.workers)
   with_progress({
     p <- progressr::progressor(steps = length(split_data))
@@ -177,7 +184,8 @@ structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps
                                          p()
                                          Sys.sleep(0.2)
                                          pats_window <- x %>% dplyr::pull(appln_id) %>%
-                                           unique()
+                                                              unique()
+
                                          if (length(pats_window) > 0) {
                                            pat_tech <- p.dat %>% dplyr::filter(appln_id %in%
                                                                                  pats_window) %>% widyr::pairwise_count(item = cpc,
@@ -191,8 +199,10 @@ structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps
                                              edge_count <- igraph::ecount(g_inv)
                                              if (edge_count >= 1) {
                                                tibble::tibble(structural = nds(g = g_inv,
-                                                                               s = node.sample, reps_i = reps), edges = edge_count,
-                                                              nodes = node_count)
+                                                                               s = node.sample,
+                                                                               reps_i = reps),
+                                                                               edges = edge_count,
+                                                                               nodes = node_count)
                                              }
                                              else {
                                                tibble::tibble(structural = NA, edges = edge_count,
