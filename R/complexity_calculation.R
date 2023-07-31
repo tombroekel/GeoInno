@@ -72,6 +72,7 @@ giant.component <- function(graph)
 #' NDS.intern(node_x=1, g = my.graph, reps_i=10)
 NDS.intern<-function(node_x=x, g, reps_i)
   {
+  x<-NULL
   set.seed(123)
   if(missing(reps_i)){reps_i=200}
   sample_vertex <- igraph::random_walk(graph=g, start=node_x, steps = reps_i, mode="all")

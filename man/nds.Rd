@@ -4,7 +4,7 @@
 \alias{nds}
 \title{Function nds}
 \usage{
-nds(g = g, s = 125, reps_i = 200)
+nds(g, s, reps_i)
 }
 \arguments{
 \item{g}{An igraph network main component.}
