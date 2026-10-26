@@ -18,7 +18,13 @@ knitr::opts_chunk$set(
 <!-- badges: start -->
 <!-- badges: end -->
 
-The package's aim is to provide a set of tools for working with patent data that are frequently employed in the context of research related to the Geography of Innovation literature. It will be continously expanded. At this stage, its main function is *structural_diversity()*, which calculates the measure of **structural diversity** as defined by Broekel (2019) from patent data. It also features a number of support functions and the function *complexity_frontier()* used to transform an index of technological complexity to the so-called **complexity frontier**, which Mewes & Broekel (2022) use to aggregate the technology-specific index to the level of a spatial unit (regions or countries).
+GeoInno provides tools for patent-data research in the Geography of Innovation. Its `structural_diversity()` function calculates a Network Diversity Score (NDS) from patent co-occurrence networks. `complexity_frontier()` aggregates a technology-specific index to spatial units.
+
+## Structural Diversity in GeoInno 2.0
+
+The recommended estimator samples up to `n_starts = 125` starting vertices from the largest connected component. For each start, a random walk stops when `n_nodes = 150` **distinct vertices** have been visited; smaller components are used in full. The estimator averages finite sample-level iNDS values, records undefined values as missing, and does not cap raw NDS at 1. It returns `Structural_raw` and `Structural_neglog = -log(Structural_raw)` for positive raw values. Negative transformed values are legitimate when raw NDS exceeds 1. `n_samples`, `n_valid_samples`, and `share_valid_samples` show how much sampled information was usable. The `seed` argument gives reproducible results with one or multiple workers.
+
+The historical fixed-step estimator remains available as `structural_diversity_legacy()` for reproducing analyses based on earlier GeoInno versions. Its `node.sample` argument counts starting vertices, and `reps` counts random-walk steps, not bootstrap repetitions. Its historical RNG, undefined-value treatment, and transformation are preserved.
 
 The package requires the packages **igraph**, **tidyverse**, **widyr**,**future**, **future.apply** and **data.table** to be installed.
 
@@ -39,12 +45,21 @@ devtools::install_github("tombroekel/GeoInno")
 
 ## Example
 
-This is a basic example:
+The corrected estimator is the default choice:
 
 ```{r example, eval=F}
 library(GeoInno)
 ## Calculate structural diversity using artificial data set pat_df
 
 complexity <- structural_diversity(pat_df)
+complexity$Structural_raw
+complexity$Structural_neglog
+
+## Reproduce the historical fixed-step implementation
+complexity_legacy <- structural_diversity_legacy(pat_df)
 ```
+
+### AI assistance
+
+The GeoInno 2.0 Structural Diversity revision was developed with AI-assisted code review, methodological auditing, documentation, and implementation. The models, dates, and scope of assistance are documented in [AI_ASSISTANCE.md](AI_ASSISTANCE.md). Human authorship and responsibility remain unchanged.
 

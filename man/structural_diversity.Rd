@@ -2,45 +2,56 @@
 % Please edit documentation in R/complexity_calculation.R
 \name{structural_diversity}
 \alias{structural_diversity}
-\title{Structural diversity}
+\title{Structural diversity with fixed-unique-node sampling}
 \usage{
 structural_diversity(
   p.dat = pat_df,
   mw = 3,
-  node.sample = 125,
-  reps = 200,
+  n_starts = 125,
+  n_nodes = 150,
+  seed = 123,
   core.workers = 1
 )
 }
 \arguments{
-\item{p.dat}{A data frame in the form of \emph{pat_df}.}
+\item{p.dat}{Patent data with \code{appln_id}, \code{year}, \code{tech}, and \code{cpc} columns;
+defaults to the package example \code{pat_df}.}
 
-\item{mw}{Parameter setting the length of moving window. Default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).}
+\item{mw}{Moving-window length, default 3 (years \code{t} through \code{t + mw - 1}).}
 
-\item{node.sample}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.}
+\item{n_starts}{Maximum number of starting vertices/sample subnetworks, default 125.}
 
-\item{reps}{The number of repetitions used in the bootstrap. Default set to 200.}
+\item{n_nodes}{Number of distinct vertices required in each sampled subnetwork,
+default 150. This is not a fixed number of walk steps.}
 
-\item{core.workers}{The number of cores used in parallelization. Default set to 1.}
+\item{seed}{Top-level random seed. Each technology-year receives a reproducible
+independent RNG stream through \code{future.apply}; distinct per-start seeds are
+drawn from that stream. Repeated runs and worker counts produce identical
+results for the same seed.}
+
+\item{core.workers}{Number of parallel workers, default 1.}
 }
 \value{
-The function returns a data.frame with the name complexity including the following information:
-\itemize{
-  \item{tech}{The focal technology.}
-  \item{year}{The year for which the calculation is done.}
-  \item{tech_nodes}{The number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-  \item{tech_edges}{The number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-  \item{structural}{The values of the measure of structural diversity.}
-  \item{patents}{The number of unique patent applications associated with this technology.}
-  \item{cpcs}{The number of unique CPC codes associated with patents of this technology.}
-}
+A data frame with technology (\code{tech}), year, patent/CPC counts,
+network edge/node counts, \code{Structural_raw} (mean finite sample-level iNDS),
+\code{Structural_neglog} (\code{-log(Structural_raw)} for positive finite raw values),
+\code{structural} (an alias of \code{Structural_neglog}), \code{n_samples},
+\code{n_valid_samples}, and \code{share_valid_samples}. Undefined sample iNDS values
+are missing, never zero-imputed. The raw statistic is not capped at 1;
+values above 1 yield legitimate negative \code{Structural_neglog} values.
 }
 \description{
-The function calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. The function is set-up for parallel computing using the future.apply() approach. A progress bar from progressr is implemented. An example is provided below showcasing the way the data is to be structured.
+Calculates Structural Diversity/NDS from patent co-occurrence networks.
+For each technology-year, the largest connected component is sampled from up to
+\code{n_starts} starting vertices. Each walk stops once \code{n_nodes} distinct vertices
+(including the start) have been visited. If the component has at most \code{n_nodes}
+vertices, the whole component is used for every start. Sample-level iNDS values
+are averaged after excluding non-finite values. This is the recommended GeoInno
+2.0 estimator. \code{\link[=structural_diversity_legacy]{structural_diversity_legacy()}} retains the historical fixed-step
+estimator for reproducibility.
 }
 \examples{
-structural_diversity(pat_df)
-}
-\references{
-\insertAllCited{}
+complexity <- structural_diversity(pat_df)
+complexity$Structural_raw
+complexity$Structural_neglog
 }

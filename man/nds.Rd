@@ -9,15 +9,15 @@ nds(g, s, reps_i)
 \arguments{
 \item{g}{An igraph network main component.}
 
-\item{s}{The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}}
+\item{s}{Number of starting vertices (sampled subnetworks), default 125.}
 
-\item{reps_i}{The number of repetition of the bootstrap.}
+\item{reps_i}{Number of random-walk steps in each sampled subnetwork, default 200; not a bootstrap repetition count.}
 }
 \value{
 A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 }
 \description{
-Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+Historical fixed-step NDS aggregator retained for reproducibility. The network must be binary and connected (largest component). The function samples up to \code{s} starting vertices, calls \code{\link[=NDS.intern]{NDS.intern()}}, substitutes 1 for a zero aggregate, caps values above 1, and returns \code{-log()} of the result.
 }
 \examples{
 my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)
