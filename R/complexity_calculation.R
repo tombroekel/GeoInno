@@ -50,7 +50,8 @@ giant.component <- function(graph)
 
 #' individual network diversity score (iNDS)
 #'
-#' @description NDS.intern() calculates the individual network diversity score as defined by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It is in the calculation of the structural diversity complexity measure of \insertCite{Broekel2019;textual}{GeoInno}.
+#' @md
+#' @description Historical fixed-step individual NDS calculation retained for reproducibility. The walk uses `reps_i` steps, resets the seed internally, and converts undefined sample scores to zero. Used by [structural_diversity_legacy()].
 #' @importFrom Rdpack reprompt
 #' @import tidyverse
 #' @import widyr
@@ -62,7 +63,7 @@ giant.component <- function(graph)
 #' @importFrom stats median quantile var window
 #' @param g The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.
 #' @param node_x The randomly sampled node (position index in igraph object) for which the partial network is to be extracted by means of a random walk.
-#' @param reps_i The number of repetitions used in the bootstrap, default set to 200.
+#' @param reps_i Number of random-walk steps, default 200; not a bootstrap repetition count.
 #'
 #' @return Returns the value of the iNDS measure.
 #' @export
@@ -93,10 +94,11 @@ NDS.intern<-function(node_x=x, g, reps_i)
 }
 
 #' Function nds
-#' @description Background function for the estimation of the structural diversity measure by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It corresponds to the calculation of the network diversity score (NDS) of \insertCite{Broekel2019;textual}{GeoInno} for a binary network. The network must be binary and connected (giant component).
+#' @md
+#' @description Historical fixed-step NDS aggregator retained for reproducibility. The network must be binary and connected (largest component). The function samples up to `s` starting vertices, calls [NDS.intern()], substitutes 1 for a zero aggregate, caps values above 1, and returns `-log()` of the result.
 #' @param g An igraph network main component.
-#' @param reps_i The number of repetition of the bootstrap.
-#' @param s The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}
+#' @param reps_i Number of random-walk steps in each sampled subnetwork, default 200; not a bootstrap repetition count.
+#' @param s Number of starting vertices (sampled subnetworks), default 125.
 #'
 #' @return A numeric value of the NDS-score, after a log-transformation and multiplication with -1.
 #' @export
@@ -119,25 +121,21 @@ nds<-function(g,s,reps_i)
   return(structural)
   }
 
-#' Structural diversity
+#' Historical structural diversity (legacy fixed-step implementation)
 #'
-#' @description The function calculates the measure of structural diversity as defined by \insertCite{Broekel2019;textual}{GeoInno} from patent data. The primary input should is a data.frame in long-format with five columns. A column *appln_id lists* patents' ids numbers, with the same id appearing as many times as patents are associated to unique CPC (corporate patent classification) classes. Column *year* specifies the year of the patent application. Column *tech* contains the name of the aggregated technology, usually the 2 or 4 digit CPC code. Lastly, column *cpc* features the CPC code (10-digits) of the patent application. The function is set-up for parallel computing using the future.apply() approach. A progress bar from progressr is implemented. An example is provided below showcasing the way the data is to be structured.
+#' @md
+#' @description This is the pre-2.0 GeoInno implementation, retained to reproduce earlier analyses. It uses fixed-length random walks, internal seed resets, historical treatment of undefined iNDS, and historical capping/transformation. Its numerical algorithm is unchanged. Patent input has `appln_id`, `year`, `tech`, and `cpc` columns.
 #' @param p.dat A data frame in the form of \emph{pat_df}.
 #' @param mw Parameter setting the length of moving window. Default set to 3 implying that patent data will be pooled across three years (t, t+1, t+2).
-#' @param node.sample The number of nodes sampled in the Network Diversity Score calculation, set to 125, see \insertCite{Emmert-Streib2012;textual}{GeoInno}.
-#' @param reps The number of repetitions used in the bootstrap. Default set to 200.
+#' @param node.sample Number of starting vertices/sample subnetworks, default 125.
+#' @param reps Number of random-walk steps per sampled subnetwork, default 200; not a bootstrap repetition count.
 #' @param core.workers The number of cores used in parallelization. Default set to 1.
 #'
-#' @return The function returns a data.frame with the name complexity including the following information:
-#' \itemize{
-#'   \item{tech}{The focal technology.}
-#'   \item{year}{The year for which the calculation is done.}
-#'   \item{tech_nodes}{The number of nodes in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-#'   \item{tech_edges}{The number of edges in the technology-specific binarized co-occurrence (combinatorial) network of the focal technology.}
-#'   \item{structural}{The values of the measure of structural diversity.}
-#'   \item{patents}{The number of unique patent applications associated with this technology.}
-#'   \item{cpcs}{The number of unique CPC codes associated with patents of this technology.}
-#' }
+#' @return A data frame with `year`, `tech`, annual and moving-window patent/CPC
+#'   counts, historical transformed `structural` score, and largest-component
+#'   `edges` and `nodes` counts. The historical score replaces non-finite
+#'   sample-level iNDS with zero, substitutes 1 for a zero aggregate, caps raw
+#'   values above 1 at 1, and then applies `-log()`.
 #' @export
 #'
 #'@references
@@ -145,8 +143,8 @@ nds<-function(g,s,reps_i)
 #'
 #'
 #' @examples
-#' structural_diversity(pat_df)
-structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps = 200,
+#' structural_diversity_legacy(pat_df)
+structural_diversity_legacy <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps = 200,
                                   core.workers = 1)
 {
   pat_df <- NULL
@@ -230,6 +228,225 @@ structural_diversity <-function (p.dat = pat_df, mw = 3, node.sample = 125, reps
   results_window <- dplyr::left_join(results_year, results_window,
                                      by = c("tech", year = "window"), na_matches = "never")
   return(results_window)
+}
+
+#' Structural diversity with fixed-unique-node sampling
+#'
+#' @md
+#' @description Calculates Structural Diversity/NDS from patent co-occurrence networks.
+#' For each technology-year, the largest connected component is sampled from up to
+#' `n_starts` starting vertices. Each walk stops once `n_nodes` distinct vertices
+#' (including the start) have been visited. If the component has at most `n_nodes`
+#' vertices, the whole component is used for every start. Sample-level iNDS values
+#' are averaged after excluding non-finite values. This is the recommended GeoInno
+#' 2.0 estimator. [structural_diversity_legacy()] retains the historical fixed-step
+#' estimator for reproducibility.
+#' @param p.dat Patent data with `appln_id`, `year`, `tech`, and `cpc` columns;
+#'   defaults to the package example `pat_df`.
+#' @param mw Moving-window length, default 3 (years `t` through `t + mw - 1`).
+#' @param n_starts Maximum number of starting vertices/sample subnetworks, default 125.
+#' @param n_nodes Number of distinct vertices required in each sampled subnetwork,
+#'   default 150. This is not a fixed number of walk steps.
+#' @param seed Top-level random seed. Each technology-year receives a reproducible
+#'   independent RNG stream through `future.apply`; distinct per-start seeds are
+#'   drawn from that stream. Repeated runs and worker counts produce identical
+#'   results for the same seed.
+#' @param core.workers Number of parallel workers, default 1.
+#' @return A data frame with technology (`tech`), year, patent/CPC counts,
+#'   network edge/node counts, `Structural_raw` (mean finite sample-level iNDS),
+#'   `Structural_neglog` (`-log(Structural_raw)` for positive finite raw values),
+#'   `structural` (an alias of `Structural_neglog`), `n_samples`,
+#'   `n_valid_samples`, and `share_valid_samples`. Undefined sample iNDS values
+#'   are missing, never zero-imputed. The raw statistic is not capped at 1;
+#'   values above 1 yield legitimate negative `Structural_neglog` values.
+#' @export
+#' @examples
+#' complexity <- structural_diversity(pat_df)
+#' complexity$Structural_raw
+#' complexity$Structural_neglog
+structural_diversity <- function(p.dat = pat_df, mw = 3, n_starts = 125,
+                                 n_nodes = 150, seed = 123, core.workers = 1)
+{
+  if (length(n_starts) != 1L || !is.finite(n_starts) || n_starts < 1 ||
+      n_starts != as.integer(n_starts)) stop("n_starts must be a positive integer.")
+  if (length(n_nodes) != 1L || !is.finite(n_nodes) || n_nodes < 1 ||
+      n_nodes != as.integer(n_nodes)) stop("n_nodes must be a positive integer.")
+  if (length(core.workers) != 1L || !is.finite(core.workers) || core.workers < 1 ||
+      core.workers != as.integer(core.workers)) stop("core.workers must be a positive integer.")
+  if (length(seed) != 1L || !is.finite(seed) || seed < 0 ||
+      seed != as.integer(seed)) stop("seed must be a non-negative integer.")
+  force(p.dat)
+  pat_df <- NULL
+  year <- NULL
+  tech <- NULL
+  appln_id <- NULL
+  geo <- NULL
+  structural <- NULL
+  item1 <- NULL
+  item2 <- NULL
+  id <- NULL
+  cpc <- NULL
+  p.dat <- p.dat %>% dplyr::rowwise() %>% dplyr::mutate(window = paste(rep(year, mw) + c(0:(mw - 1)), collapse = "_"))
+  p.dat <- p.dat %>% tidyr::separate_rows(window, sep = "_")
+  p.dat <- p.dat %>% dplyr::mutate(window = as.numeric(window))
+
+  results_year <- p.dat %>% dplyr::group_by(year, tech) %>%
+    dplyr::summarise(patents_year = dplyr::n_distinct(appln_id),
+                     cpcs_year = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+
+  results_window <- p.dat %>% dplyr::group_by(window, tech) %>%
+    dplyr::summarise(patents_window = dplyr::n_distinct(appln_id),
+                     cpcs_window = dplyr::n_distinct(cpc)) %>% dplyr::ungroup()
+
+  progressr::handlers("progress")
+  p.dat <- p.dat %>% dplyr::mutate(tech_pats = paste(p.dat$tech,
+                                                     p.dat$window, sep = "_")) %>% dplyr::distinct()
+  split_data <- base::split(x = p.dat, f = p.dat$tech_pats)
+
+  old_plan <- future::plan()
+  # Keep the small corrected helper family together when futures serialize a
+  # development checkout (an installed package resolves them by namespace).
+  helper_env <- new.env(parent = asNamespace("stats"))
+  for (name in c("sample_fixed_nodes", "NDS.intern_fixed",
+                 "aggregate_sample_nds", "nds_fixed")) {
+    helper_env[[name]] <- get(name, envir = environment(structural_diversity))
+    environment(helper_env[[name]]) <- helper_env
+  }
+  score_fixed <- helper_env$nds_fixed
+  on.exit(future::plan(old_plan), add = TRUE)
+  future::plan(multisession, workers = core.workers)
+  with_progress({
+    p <- progressr::progressor(steps = length(split_data))
+    dfs <- future.apply::future_lapply(split_data, future.seed = seed,
+                                       FUN = function(x, future.label = T, ...) {
+                                         p()
+                                         pats_window <- x %>% dplyr::pull(appln_id) %>% unique()
+
+                                         if (length(pats_window) > 0) {
+                                           pat_tech <- p.dat %>% dplyr::filter(appln_id %in%
+                                                                                 pats_window) %>% widyr::pairwise_count(item = cpc,
+                                                                                                                        feature = appln_id, diag = F)
+                                           pat_net <- pat_tech %>% dplyr::select(item1,
+                                                                                 item2) %>% as.matrix() %>% igraph::graph_from_edgelist(directed = FALSE) %>%
+                                             igraph::simplify()
+                                           if (igraph::ecount(pat_net) > 0) {
+                                             components <- igraph::components(pat_net)
+                                             g_inv <- igraph::induced_subgraph(
+                                               pat_net, which(components$membership == which.max(components$csize)))
+                                             node_count <- igraph::vcount(g_inv)
+                                             edge_count <- igraph::ecount(g_inv)
+                                             if (edge_count >= 1) {
+                                               score <- score_fixed(g = g_inv, n_starts = n_starts,
+                                                                    n_nodes = n_nodes)
+                                               tibble::tibble(Structural_raw = score$Structural_raw,
+                                                              Structural_neglog = score$Structural_neglog,
+                                                              structural = score$Structural_neglog,
+                                                              n_samples = score$n_samples,
+                                                              n_valid_samples = score$n_valid_samples,
+                                                              share_valid_samples = score$share_valid_samples,
+                                                              edges = edge_count, nodes = node_count)
+                                             }
+                                             else {
+                                               tibble::tibble(Structural_raw = NA_real_, Structural_neglog = NA_real_,
+                                                              structural = NA_real_, n_samples = 0L,
+                                                              n_valid_samples = 0L, share_valid_samples = NA_real_,
+                                                              edges = edge_count, nodes = node_count)
+                                             }
+                                           }
+                                           else {
+                                             tibble::tibble(Structural_raw = NA_real_, Structural_neglog = NA_real_,
+                                                            structural = NA_real_, n_samples = 0L,
+                                                            n_valid_samples = 0L, share_valid_samples = NA_real_,
+                                                            edges = NA_real_, nodes = NA_real_)
+                                           }
+                                         }
+                                         else {
+                                           tibble::tibble(Structural_raw = NA_real_, Structural_neglog = NA_real_,
+                                                          structural = NA_real_, n_samples = 0L,
+                                                          n_valid_samples = 0L, share_valid_samples = NA_real_,
+                                                          edges = NA_real_, nodes = NA_real_)
+                                         }
+                                       })
+  })
+  dfs_df <- data.table::rbindlist(dfs, fill = T)
+  dfs_df <- dplyr::bind_cols(id = names(dfs), dfs_df)
+  dfs_df <- dfs_df %>% tidyr::separate(id, sep = "_", into = c("tech",
+                                                               "window")) %>% dplyr::mutate(window = as.numeric(window))
+  results_window <- dplyr::left_join(results_window, dfs_df,
+                                     by = c("tech", "window"), na_matches = "never")
+  results_window <- dplyr::left_join(results_year, results_window,
+                                     by = c("tech", year = "window"), na_matches = "never")
+  return(results_window)
+}
+
+# Sample an induced subgraph by walking until exactly n_nodes distinct vertices
+# have been visited. A connected component no larger than n_nodes is used whole.
+sample_fixed_nodes <- function(g, node_x, n_nodes)
+{
+  if (igraph::vcount(g) <= n_nodes) return(g)
+  visited <- rep(FALSE, igraph::vcount(g))
+  current <- as.integer(node_x)
+  visited[current] <- TRUE
+  count <- 1L
+  while (count < n_nodes) {
+    adjacent <- as.integer(igraph::neighbors(g, current, mode = "all"))
+    current <- adjacent[sample.int(length(adjacent), 1L)]
+    if (!visited[current]) {
+      visited[current] <- TRUE
+      count <- count + 1L
+    }
+  }
+  igraph::induced_subgraph(g, which(visited))
+}
+
+# Corrected counterpart of NDS.intern(): same iNDS formula, fixed-node sample,
+# no internal seed reset, and non-finite sample values are missing.
+NDS.intern_fixed <- function(node_x, g, n_nodes)
+{
+  sample_net <- sample_fixed_nodes(g, node_x, n_nodes)
+  modules_g <- igraph::cluster_walktrap(sample_net, steps = 4, merges = TRUE,
+                                       modularity = TRUE, membership = TRUE)
+  m <- data.frame(igraph::sizes(modules_g))
+  lap <- eigen(igraph::laplacian_matrix(sample_net, normalization = "unnormalized"))$values
+  graph.3 <- igraph::count_motifs(sample_net, 3)
+  graph.4 <- igraph::count_motifs(sample_net, 4)
+  a.module <- length(modules_g)/igraph::vcount(sample_net)
+  v.module <- var(m$Freq)/mean(m$Freq)
+  v.l <- var(lap)/mean(lap)
+  r.motif <- graph.3/graph.4
+  nds.s <- (a.module*r.motif)/(v.module*v.l)
+  if (!is.finite(nds.s)) return(NA_real_)
+  nds.s
+}
+
+# Corrected counterpart of nds(): mean finite sample-level iNDS with diagnostics.
+aggregate_sample_nds <- function(sample_scores)
+{
+  n_samples <- length(sample_scores)
+  valid <- is.finite(sample_scores)
+  n_valid_samples <- sum(valid)
+  if (!any(valid)) {
+    raw_nds <- NA_real_
+  } else {
+    raw_nds <- mean(sample_scores[valid])
+  }
+  transformed <- if (is.finite(raw_nds) && raw_nds > 0) -log(raw_nds) else NA_real_
+  list(Structural_raw = raw_nds, Structural_neglog = transformed,
+       n_samples = n_samples, n_valid_samples = n_valid_samples,
+       share_valid_samples = if (n_samples > 0) n_valid_samples/n_samples else NA_real_)
+}
+
+nds_fixed <- function(g, n_starts = 125, n_nodes = 150)
+{
+  n_samples <- min(igraph::vcount(g), n_starts)
+  start_vertex <- sample.int(igraph::vcount(g), n_samples, replace = FALSE)
+  walk_seeds <- sample.int(.Machine$integer.max, n_samples, replace = FALSE)
+  sample_scores <- vapply(seq_along(start_vertex), function(i) {
+    set.seed(walk_seeds[i])
+    NDS.intern_fixed(start_vertex[i], g = g, n_nodes = n_nodes)
+  }, numeric(1))
+  c(aggregate_sample_nds(sample_scores),
+    list(sample_scores = sample_scores, walk_seeds = walk_seeds))
 }
 
 

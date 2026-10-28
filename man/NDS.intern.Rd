@@ -11,13 +11,13 @@ NDS.intern(node_x = x, g, reps_i)
 
 \item{g}{The igraph object. Usually, a binarized version of the combinatorial network of CPC classes co-occurring on patents.}
 
-\item{reps_i}{The number of repetitions used in the bootstrap, default set to 200.}
+\item{reps_i}{Number of random-walk steps, default 200; not a bootstrap repetition count.}
 }
 \value{
 Returns the value of the iNDS measure.
 }
 \description{
-NDS.intern() calculates the individual network diversity score as defined by \insertCite{Emmert-Streib2012;textual}{GeoInno}. It is in the calculation of the structural diversity complexity measure of \insertCite{Broekel2019;textual}{GeoInno}.
+Historical fixed-step individual NDS calculation retained for reproducibility. The walk uses \code{reps_i} steps, resets the seed internally, and converts undefined sample scores to zero. Used by \code{\link[=structural_diversity_legacy]{structural_diversity_legacy()}}.
 }
 \examples{
 my.graph <- igraph::random.graph.game(p.or.m = 1/10, n=10)

@@ -7,6 +7,7 @@ export(create_sample_data)
 export(giant.component)
 export(nds)
 export(structural_diversity)
+export(structural_diversity_legacy)
 import(data.table)
 import(future)
 import(future.apply)
@@ -14,19 +15,23 @@ import(progressr)
 import(tidyverse)
 import(widyr)
 importFrom(Rdpack,reprompt)
-importFrom(igraph,cluster_walktrap)
-importFrom(igraph,clusters)
-importFrom(igraph,ecount)
-importFrom(igraph,graph_from_edgelist)
-importFrom(igraph,induced.subgraph)
-importFrom(igraph,induced_subgraph)
-importFrom(igraph,random.graph.game)
-importFrom(igraph,random_walk)
-importFrom(igraph,simplify)
-importFrom(igraph,sizes)
-importFrom(igraph,vcount)
+importFrom(igraph,
+  cluster_walktrap,
+  clusters,
+  ecount,
+  graph_from_edgelist,
+  induced.subgraph,
+  induced_subgraph,
+  random.graph.game,
+  random_walk,
+  simplify,
+  sizes,
+  vcount
+)
 importFrom(magrittr,"%>%")
-importFrom(stats,median)
-importFrom(stats,quantile)
-importFrom(stats,var)
-importFrom(stats,window)
+importFrom(stats,
+  median,
+  quantile,
+  var,
+  window
+)
