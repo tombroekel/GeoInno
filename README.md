@@ -23,7 +23,7 @@ Mewes, L., Broekel, T., 2022. Technological complexity and economic growth of re
 
 ## Installation
 
-You can install the development version of GeoInno from [GitHub](https://tombroekel/GeoInno) with:
+You can install GeoInno from [GitHub](https://github.com/tombroekel/GeoInno) with:
 
 ``` r
 # install.packages("devtools")
